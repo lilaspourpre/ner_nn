@@ -31,15 +31,17 @@ class Pipeline():
         return all_tokens
 
     def testing(self, test_set):
+        unbilou = from_bilou_tagging.FROM_BILOU() #calling class FROMBILOU
         predicted = self.mc.predict(test_set)
-        unbilou = from_bilou_tagging.FROM_BILOU()
         if len(test_set)==len(predicted):
-            unbilou.untag(test_set, predicted)
+            result = unbilou.untag(test_set, predicted)
             unbilou.writing_to_file()
+            return result
+        else:
+            logging.log(logging.ERROR, 'lenght of test_set != predicted tags')
 
     def writing_to_file(self, result=None):
-        dic_res = {zip(['1757939', '1757940']): 'Person', zip(['1757939', '1757940']): 'Person'}
-        res_wr.appending_res(dic_res)
+        res_wr.appending_res(result)
 
 res_wr.initialize_logger()
 pipeline = Pipeline()
@@ -48,8 +50,8 @@ dic, all_tokens = pipeline.prep_stage()
 pipeline.training(dic, all_tokens)
 logging.log(logging.INFO, 'Training finished')
 test_set = pipeline.getting_testset()
-pipeline.testing(test_set)
+result_nes = pipeline.testing(test_set)
 logging.log(logging.INFO, 'Testing finished')
-pipeline.writing_to_file()
+pipeline.writing_to_file(result_nes)
 
 
