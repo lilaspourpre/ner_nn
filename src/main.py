@@ -21,6 +21,7 @@ class Pipeline():
         bilou = to_bilou_tagging.TO_BILOU(dic) #calling class BILOU with dic (for tagging)
         corpus = bilou.tag(all_tokens) #tagging all tokens returning a corpus
         bilou.writing_to_file()
+        logging.log(logging.INFO, 'dic of NEs created')
         self.mc.fit(corpus)
 
     def getting_testset(self):

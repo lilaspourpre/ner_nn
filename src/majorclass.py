@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import codecs
-
+import logging
 
 class MajorClass():
     def __init__(self):
@@ -34,6 +34,7 @@ class MajorClass():
         cand = self.findCandidate(list_of_cands)
         if self.isMajority(list_of_cands, cand):
             self.majority_class = cand
+            logging.log(logging.INFO, 'major_class = '+str(cand))
         else:
             raise Exception
 
