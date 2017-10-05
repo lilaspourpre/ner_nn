@@ -73,7 +73,6 @@ class Read_objs():
         except psycopg2.DatabaseError as e:
             print(e)
 
-#
 # new_NER = Read_objs('testset')
 # new_NER.getting_filenames(".objects")
 # new_NER.getting_data_from_files()

@@ -29,9 +29,7 @@ class Read_tokens(r_objs.Read_objs):
             else:
                 self.entities.append(('NULL', 'NULL', 'NULL', i))
 
-
-
-new_spans_r = Read_tokens('testset')
-new_spans_r.getting_filenames(".tokens")
-new_spans_r.getting_data_from_files()
-new_spans_r.add_to_db('insert into tokens (token_id, position, token_length, text_token) values {}', 'config_test.xml')
+# new_spans_r = Read_tokens('testset')
+# new_spans_r.getting_filenames(".tokens")
+# new_spans_r.getting_data_from_files()
+# new_spans_r.add_to_db('insert into tokens (token_id, position, token_length, text_token) values {}', 'config_test.xml')
