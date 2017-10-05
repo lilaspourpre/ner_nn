@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import codecs
+import codecs, logging
 
 
 class TO_BILOU():
@@ -37,20 +37,23 @@ class TO_BILOU():
                             self.trainset.append([token_id, token_text, position, 'U' + cur_common_tag])
                         pass
 
-                if prev_object_id is None and next_object_id is not None:  # если нет предыдущего в словаре, а только этот и следующий, то проверять, один ли это объект
+                elif prev_object_id is None and next_object_id is not None:  # если нет предыдущего в словаре, а только этот и следующий, то проверять, один ли это объект
                     if cur_object_id == next_object_id:  # если это один объект, то это начало B
                         self.trainset.append([token_id, token_text, position, 'B' + cur_common_tag])
                     else:  # если разные, то это разные объекты
                         self.trainset.append([token_id, token_text, position, 'U' + cur_common_tag])
 
-                if prev_object_id is not None and next_object_id is None:
+                elif prev_object_id is not None and next_object_id is None:
                     if cur_object_id == prev_object_id:  # если это один объект, то это начало B
                         self.trainset.append([token_id, token_text, position, 'L' + cur_common_tag])
                     else:  # если разные, то это разные объекты
                         self.trainset.append([token_id, token_text, position, 'U' + cur_common_tag])
 
-                if prev_object_id is None and next_object_id is None:
+                elif prev_object_id is None and next_object_id is None:
                     self.trainset.append([token_id, token_text, position, 'U' + cur_common_tag])
+
+                else:
+                    logging.log(logging.ERROR, "BILOU to_tag doesn't work properly")
             else:
                 self.trainset.append([token_id, token_text, position, 'O'])
         return self.trainset
