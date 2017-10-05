@@ -31,6 +31,7 @@ class DB_extract():
         for obj in self.__objects:
             type_tag = obj[1]
             spans = obj[0].split(', ')
+            len_spans = len(spans)
             for span in spans:
                 self.__db.cur.execute("SELECT tokens_ids FROM spans WHERE span_id = '" + span + "';")
                 tokens = self.__db.cur.fetchall()[0][0].split(' ')
@@ -38,10 +39,10 @@ class DB_extract():
                     self.__db.cur.execute("SELECT token_id, text_token FROM tokens WHERE token_id = '"+token+"';")
                     result_ne = list(self.__db.cur.fetchall())[0]
                     try:
-                        if [obj[2], result_ne[1], type_tag] not in self.__dic[token]:
-                            self.__dic[token].append([obj[2], result_ne[1], type_tag])
+                        if self.__dic[token][3]<len_spans:
+                            self.__dic[token] = [obj[2], result_ne[1], type_tag, len_spans]
                     except KeyError:
-                        self.__dic[token] = [[obj[2], result_ne[1], type_tag]]
+                        self.__dic[token] = [obj[2], result_ne[1], type_tag, len_spans]
 
     def close_db(self):
         try:
