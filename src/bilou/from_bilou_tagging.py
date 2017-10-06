@@ -20,18 +20,20 @@ class FROM_BILOU():
             cur_bilou_tag = full_tag[0:1]
             cur_common_tag = full_tag[1:]
 
-            if cur_bilou_tag == 'U':
+            if cur_bilou_tag == 'U': # если отдельный тег, то мы просто добавляем слово
                 self.dic_of_results[zip([token_id])] = cur_common_tag
 
-            elif cur_bilou_tag == 'B':
+            elif cur_bilou_tag == 'B': #если первый тег В
 
-                if ne_tokens != []:
-                    self.dic_of_results[zip(ne_tokens)] = prev_tag
-                    ne_tokens = []
+                if ne_tokens != []: #если у нас что-то осталось вne_tokens
+                    self.dic_of_results[zip(ne_tokens)] = prev_tag #то мы это добавляем
+                    ne_tokens = [] #и ощищаем временное хранилище
+                    prev_tag = None
 
                 if index == len(self.corpus)-1:
                     logging.log(logging.ERROR, 'somehow bilou tag B is the last tag in whole corpus')
-                else:
+
+                else: #
                     next_bilou_tag = self.corpus[index + 1][3][0:1]
                     next_common_tag = self.corpus[index + 1][3][1:]
 
@@ -39,7 +41,11 @@ class FROM_BILOU():
                         prev_tag = cur_common_tag
                         ne_tokens.append(token_id)
 
-            elif cur_bilou_tag == 'I':
+                    else:
+                        logging.log(logging.ERROR, 'after B ('+token_id+" "+token_text+') is not I and L (or I/L of another class)')
+                        self.dic_of_results[zip([token_id])] = cur_common_tag
+
+            elif cur_bilou_tag == 'I': #do we need to check some parameters? same type is already checked
                 ne_tokens.append(token_id)
 
             elif cur_bilou_tag == 'L':

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import codecs, logging
-import csv, os.path
+import csv, os.path, datetime
 import src.db.db_exract as db_extract
 
 def initialize_logger():
@@ -16,7 +16,9 @@ def initialize_logger():
 
 def appending_res(dic_res):
     folder = os.path.dirname(__file__)
-    res_folder = folder.replace(os.path.basename(folder), 'result')
+    res_folder = folder.replace(os.path.basename(folder), 'result'+str(datetime.datetime.now().strftime(' %Y-%m-%d %H-%M-%S')))
+    if not os.path.exists(res_folder):
+        os.makedirs(res_folder)
     dbe = db_extract.DB_extract("config_test.xml")
     for entity in dic_res.keys():
         list_of_tokens = list(i[0] for i in entity)
