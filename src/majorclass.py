@@ -1,10 +1,35 @@
 # -*- coding: utf-8 -*-
 import codecs
 import logging
+import random
+
 
 class MajorClass():
     def __init__(self):
         self.g = []
+        self.dic_of_cands = {}
+        self.sum_cand = 0
+
+    def find_probabilities(self, list_of_cands):
+        for cand in list_of_cands:
+            if cand in self.dic_of_cands.keys():
+                self.dic_of_cands[cand]+=1
+            else:
+                self.dic_of_cands[cand] = 1
+        self.sum_cand = sum(self.dic_of_cands.values())
+
+        prev = 0
+        counter = 0
+        for i in self.dic_of_cands:
+            curr = self.dic_of_cands[i]
+            if counter == 0:
+                self.dic_of_cands[i] = [-0.1, prev + round(self.dic_of_cands[i] / self.sum_cand, 20)]
+            elif counter == len(self.dic_of_cands) - 1:
+                self.dic_of_cands[i] = [prev, 1]
+            else:
+                self.dic_of_cands[i] = [prev, prev + round(self.dic_of_cands[i] / self.sum_cand, 20)]
+            prev += round(curr / self.sum_cand,20)
+            counter += 1
 
     def findCandidate(self, list_of_cands):
         candidate = 0
@@ -44,8 +69,15 @@ class MajorClass():
         for row in corpus:
             data.append(row[:2])
             tags.append(row[3])
-        self.checkMajority(tags)
+        self.find_probabilities(tags)
 
     def predict(self, data):
-        tags = [self.majority_class for i in data]
+        tags = []
+        for token in data:
+            random_number = random.uniform(0, 1) # gives random number from 0 to 1
+            for key in self.dic_of_cands:
+                if random_number>self.dic_of_cands[key][0] and random_number<=self.dic_of_cands[key][1]:
+                    tags.append(key)
+                    break
+        #tags = [self.majority_class for i in data]
         return tags

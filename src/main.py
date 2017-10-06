@@ -55,6 +55,5 @@ if __name__ == '__main__':
     test_set = pipeline.getting_testset()
     result_nes = pipeline.testing(test_set)
     logging.log(logging.INFO, 'Testing finished')
+    print(result_nes)
     pipeline.writing_to_file(result_nes)
-
-

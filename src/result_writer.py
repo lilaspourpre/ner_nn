@@ -37,5 +37,6 @@ def appending_res(dic_res):
                 writer.writerow([dic_res[entity],list_of_params[0][0], str(entity_length)])
 
         else:
+            print(dbe_res)
             logging.log(logging.ERROR, 'problems with db')
             raise Exception
