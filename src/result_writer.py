@@ -1,20 +1,8 @@
 # -*- coding: utf-8 -*-
 import codecs, logging
 import csv, os.path, datetime
-import src.db.db_exract as db_extract
 
-def initialize_logger():
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    # create console handler and set level to info
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(levelname)s: %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-def appending_res(dic_res):
+def to_file(dic_res):
     folder = os.path.dirname(__file__)
     res_folder = folder.replace(os.path.basename(folder), 'result'+str(datetime.datetime.now().strftime(' %Y-%m-%d %H-%M-%S')))
     if not os.path.exists(res_folder):

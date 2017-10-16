@@ -1,6 +1,0 @@
-<db_config>
-    <dbname>ner_testset</dbname>
-    <user>postgres</user>
-    <host>localhost</host>
-    <password>postgres</password>
-</db_config>
