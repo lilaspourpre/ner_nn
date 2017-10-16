@@ -1,40 +1,36 @@
 # -*- coding: utf-8 -*-
-import codecs
-import re
-
-import src.readers.objectsReader as r_objs
+import src.readers.reader as reader
 
 
-class Read_spans(r_objs.Read_objs):
-    def __init__(self, folder):
-        super().__init__(folder)
+class Read_spans(reader.Reader):
+    def __init__(self, path=None):
+        super().__init__(path)
 
     def getting_data_from_files(self):
-        """
-        reading from each file from list and sending text to the data splitter
-        :return: None
-        """
-        for file in self.list_of_files:
-            with codecs.open(file, 'r', encoding='utf-8') as f:
-                self.data_splitter(f.readlines())
+        self.list_of_filenames = list(map(lambda x: x.replace('.tokens','.spans'),
+                                          reader.Reader.trainset_filenames_list))
+        self.inner_getting_data_from_files()
+        return self.dic_of_files_with_dics
 
     def data_splitter(self, data):
         """
         :param data: rows from file
         :return: sends parsed lines to add_to_db function
         """
-        for i in data:
-            entity = i.split(" # ")
-            entity[1] = entity[1].replace('\n', '')  # type '141370 141371 Восточной Сибири'
-            reg_ex = re.compile('[\d]{5,7}')
-            ids = ' '.join(reg_ex.findall(entity[1]))
+        spans = {}
+        for row in data:
+            entity = row.split(" # ")
+            entity[1] = entity[1].replace('\n', '').split(' ')  # type ['141370', '141371', 'Восточной', 'Сибири'
             entity[0] = entity[0][0:-1].split(' ')
-            list_of_rowdata = []
-            list_of_rowdata.extend(entity[0])
-            list_of_rowdata.append(ids)
-            self.entities.append(tuple(list_of_rowdata))
-
-# new_spans_r = Read_spans('testset')
-# new_spans_r.getting_filenames(".spans")
-# new_spans_r.getting_data_from_files()
-# new_spans_r.add_to_db('insert into spans (span_id, type, position, length_in_symbols, first_char, length_in_tokens, tokens_ids) values {}', 'config_test.xml')
+            list_of_rowdata = entity[0][1:]
+            ids = []
+            names = []
+            for element in entity[1]:
+                try:
+                    ids.append(int(element))
+                except ValueError as e:
+                    names.append(element)
+            list_of_rowdata.append(list(map(lambda x: str(x), ids)))
+            list_of_rowdata.append(names)
+            spans[entity[0][0]] = list_of_rowdata
+        return spans

@@ -1,35 +1,42 @@
 # -*- coding: utf-8 -*-
-import codecs
+import random
 
-import src.readers.objectsReader as r_objs
+import src.readers.reader as reader
 
 
-class Read_tokens(r_objs.Read_objs):
-    def __init__(self, folder):
-        super().__init__(folder)
+class Read_tokens(reader.Reader):
+    def __init__(self, path=None, type_of_set='train'):
+        super().__init__(path)
+        self.ending = 'tokens'
+        self.type_of_set = type_of_set
 
     def getting_data_from_files(self):
-        """
-        reading from each file from list and sending text to the data splitter
-        :return: None
-        """
-        for file in self.list_of_files:
-            with codecs.open(file, 'r', encoding='utf-8') as f:
-                self.data_splitter(f.readlines())
+        if self.type_of_set == 'train':
+            self.list_of_filenames = reader.Reader.trainset_filenames_list
+        else:
+            self.list_of_filenames = reader.Reader.testset_filenames_list
+        self.inner_getting_data_from_files()
+        return self.dic_of_files_with_dics
 
     def data_splitter(self, data):
         """
         :param data: rows from file
-        :return: sends parsed lines to add_to_db function
+        :return: dict of tokens with params
         """
-        for i in data:
-            if i!='\n':
-                entity = i.replace('\n', '').split(" ")
-                self.entities.append(tuple(entity))
-            else:
-                self.entities.append(('NULL', 'NULL', 'NULL', i))
+        tokens = {}
+        for row in data:
+            if row != '\n':
+                entity = row.replace('\n', '').split(" ")
+                tokens[entity[0]] = entity[1:]
+        return tokens
 
-# new_spans_r = Read_tokens('testset')
-# new_spans_r.getting_filenames(".tokens")
-# new_spans_r.getting_data_from_files()
-# new_spans_r.add_to_db('insert into tokens (token_id, position, token_length, text_token) values {}', 'config_test.xml')
+    def get_random_data(self, start, end, step):
+        random.shuffle(self.list_of_filenames)
+        random_weights = random.randrange(start, end,
+                                          step)  # trainset length is from 50% to 100% of corpus with the step 5
+        weight_trainset = (int(len(self.list_of_filenames) * random_weights / 100))
+        reader.Reader.trainset_filenames_list = self.list_of_filenames[:weight_trainset]
+        reader.Reader.testset_filenames_list = self.list_of_filenames[int(len(self.list_of_filenames) * 0.75)
+                                                                      + 1:]
+
+
