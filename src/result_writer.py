@@ -2,29 +2,27 @@
 import codecs, logging
 import csv, os.path, datetime
 
-def to_file(dic_res):
-    folder = os.path.dirname(__file__)
-    res_folder = folder.replace(os.path.basename(folder), 'result'+str(datetime.datetime.now().strftime(' %Y-%m-%d %H-%M-%S')))
-    if not os.path.exists(res_folder):
-        os.makedirs(res_folder)
-    dbe = db_extract.DB_extract("config_test.xml")
-    for entity in dic_res.keys():
-        list_of_tokens = list(i[0] for i in entity)
-        dbe_res = dbe.get_files(list_of_tokens)
-        if len(set(dbe_res)) == 1:
-            filename = dbe_res[0][0]
-            logging.log(logging.INFO, filename)
-            list_of_params = []
-            for token_id in list_of_tokens:
-                dbe_params = dbe.get_tokens_params(token_id)
-                list_of_params.extend(dbe_params)
-            entity_length = len(list_of_params)-1+sum([int(i[1]) for i in list_of_params])
-            res_filename = os.path.join(res_folder, filename.split('.')[0]+'.result')
+def to_file(testset, dic_of_files_with_results, path=None):
+    if path != None:
+        if not os.path.exists(path):
+            os.makedirs(path)
+        res_folder = path
+    else:
+        folder = os.path.dirname(__file__)
+        res_folder = folder.replace(os.path.basename(folder), 'result '+str(datetime.datetime.now().strftime(' %Y-%m-%d %H-%M-%S')))
+        if not os.path.exists(res_folder):
+            os.makedirs(res_folder)
+
+    for file in dic_of_files_with_results.keys():
+        logging.log(logging.INFO, 'Writing to ' + file)
+        for token_tuple in dic_of_files_with_results[file].keys():
+            length, position = get_length_and_position(file, token_tuple, testset)
+            res_filename = os.path.join(res_folder, file.replace('C:\\Users\\admin\\PycharmProjects\\ner_svm\\data\\devset\\', '') + '.result')
             with codecs.open(res_filename, 'a', encoding='utf-8') as f:
                 writer = csv.writer(f, delimiter=' ')
-                writer.writerow([dic_res[entity],list_of_params[0][0], str(entity_length)])
+                writer.writerow([dic_of_files_with_results[file][token_tuple], length, position])
 
-        else:
-            print(dbe_res)
-            logging.log(logging.ERROR, 'problems with db')
-            raise Exception
+def get_length_and_position(file, token_tuple, test_set):
+    position = test_set[file][token_tuple[0]][0]
+    length = len(' '.join([test_set[file][token][2] for token in token_tuple]))
+    return (length, position)
