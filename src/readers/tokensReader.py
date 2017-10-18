@@ -4,7 +4,7 @@ import random
 import src.readers.reader as reader
 
 
-class Read_tokens(reader.Reader):
+class ReadTokens(reader.Reader):
     def __init__(self, path=None, type_of_set='train'):
         super().__init__(path)
         self.ending = 'tokens'
@@ -38,5 +38,3 @@ class Read_tokens(reader.Reader):
         reader.Reader.trainset_filenames_list = self.list_of_filenames[:weight_trainset]
         reader.Reader.testset_filenames_list = self.list_of_filenames[int(len(self.list_of_filenames) * 0.75)
                                                                       + 1:]
-
-

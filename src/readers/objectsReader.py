@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import codecs
-import os
 import src.readers.reader as reader
 
 
-class Read_objs(reader.Reader):
+class ReadObjs(reader.Reader):
     def __init__(self, path=None):
         super().__init__(path)
+        self.tag_type = None
 
     def getting_data_from_files(self):
         self.list_of_filenames = list(map(lambda x: x.replace('.tokens', '.objects'),
@@ -31,8 +30,7 @@ class Read_objs(reader.Reader):
                 if entity[0][index].upper() == entity[0][index]:
                     list_of_span_ids.append(entity[0][index])
                 else:
-                    tag_type = entity[0][index]
-            list_of_rowdata = [tag_type, list_of_span_ids]
-            list_of_rowdata.append(entity[1])
+                    self.tag_type = entity[0][index]
+            list_of_rowdata = [self.tag_type, list_of_span_ids, entity[1]]
             objects[entity[0][0]] = list_of_rowdata
         return objects

@@ -3,7 +3,7 @@ import codecs
 import logging
 
 
-class FROM_BILOU():
+class FromBILOU:
     def __init__(self):
         self.dic_of_files_of_results = {}
 
@@ -39,7 +39,7 @@ class FROM_BILOU():
 
                     if cur_bilou_tag == 'B':  # если первый тег В
 
-                        if ne_tokens != []:  # если у нас что-то осталось вne_tokens
+                        if ne_tokens:  # если у нас что-то осталось вne_tokens
                             dic_of_results[tuple(ne_tokens)] = prev_tag  # то мы это добавляем
                             ne_tokens = []  # и ощищаем временное хранилище
                             prev_tag = None
@@ -50,7 +50,8 @@ class FROM_BILOU():
 
                             else:
                                 logging.log(logging.ERROR,
-                                            'after B (' + token_id + " " + token_text + ') is not I and L (or I/L of another class)')
+                                            'after B (' + token_id + " " + token_text +
+                                            ') is not I and L (or I/L of another class)')
                                 dic_of_results[tuple([token_id])] = cur_common_tag
 
                     if cur_bilou_tag == 'I':  # do we need to check some parameters? same type is already checked
@@ -71,7 +72,7 @@ class FROM_BILOU():
                     ne_tokens = []
                     prev_tag = None
 
-            if ne_tokens != []:
+            if ne_tokens:
                 dic_of_results[tuple(ne_tokens)] = prev_tag
             self.dic_of_files_of_results[file] = dic_of_results
         return self.dic_of_files_of_results

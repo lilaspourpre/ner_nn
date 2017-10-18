@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-class Dictionary_building():
+
+class DictionaryBuilding:
     def __init__(self, spans=None, objects=None):
         self.__spans = spans
         self.__objects = objects

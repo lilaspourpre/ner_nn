@@ -3,12 +3,12 @@ import re
 import src.readers.reader as reader
 
 
-class Read_spans(reader.Reader):
+class ReadSpans(reader.Reader):
     def __init__(self, path=None):
         super().__init__(path)
 
     def getting_data_from_files(self):
-        self.list_of_filenames = list(map(lambda x: x.replace('.tokens','.spans'),
+        self.list_of_filenames = list(map(lambda x: x.replace('.tokens', '.spans'),
                                           reader.Reader.trainset_filenames_list))
         self.inner_getting_data_from_files()
         return self.dic_of_files_with_dics
@@ -25,7 +25,7 @@ class Read_spans(reader.Reader):
             entity[0] = entity[0][0:-1].split(' ')
             list_of_rowdata = entity[0][1:]
             ids = re.findall('[\d]{5,7}', entity[1])
-            names = entity[1].replace(' '.join(ids)+' ', '').split(' ')
+            names = entity[1].replace(' '.join(ids) + ' ', '').split(' ')
             list_of_rowdata.append(list(map(lambda x: str(x), ids)))
             list_of_rowdata.append(names)
             spans[entity[0][0]] = list_of_rowdata

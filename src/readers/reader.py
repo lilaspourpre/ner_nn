@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-import os, codecs, random
+import os
+import codecs
 from abc import abstractmethod
 
 
-class Reader():
+class Reader:
     trainset_filenames_list = []
     testset_filenames_list = []
 
     def __init__(self, path=None):
-        if path == None:
+        if path is None:
             self.path = lambda x: x.replace(os.path.basename(x), os.path.join('data', 'devset'))
             self.path = self.path(os.path.dirname(os.path.dirname(__file__)))
         else:
@@ -34,7 +35,8 @@ class Reader():
         for file in self.list_of_filenames:
             with codecs.open(file, 'r', encoding='utf-8') as f:
                 dict_of_tokens = self.data_splitter(f.readlines())
-                self.dic_of_files_with_dics[file.replace('.spans', '').replace('.objects', '').replace('.tokens','')] = dict_of_tokens
+                self.dic_of_files_with_dics[
+                    file.replace('.spans', '').replace('.objects', '').replace('.tokens', '')] = dict_of_tokens
 
     @abstractmethod
     def getting_data_from_files(self):

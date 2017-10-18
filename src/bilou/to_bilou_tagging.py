@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import codecs, logging
+import codecs
+import logging
 
 
-class TO_BILOU():
+class ToBILOU:
     def __init__(self, dic):
         self.dic = dic
         self.trainset = []
@@ -28,7 +29,8 @@ class TO_BILOU():
                     if next_token_id in self.dic.keys():
                         next_object_id = self.dic[next_token_id][0]
 
-                    if prev_object_id is not None and next_object_id is not None:  # если токены (след. и пред.) тоже из словаря NE
+                    if prev_object_id is not None and next_object_id is not None:
+                        # если токены (след. и пред.) тоже из словаря NE
                         if prev_object_id == cur_object_id and cur_object_id == next_object_id:
                             self.trainset.append([token_id, token_text, position, 'I' + cur_common_tag])
                         else:
@@ -40,7 +42,8 @@ class TO_BILOU():
                                 self.trainset.append([token_id, token_text, position, 'U' + cur_common_tag])
                             pass
 
-                    elif prev_object_id is None and next_object_id is not None:  # если нет предыдущего в словаре, а только этот и следующий, то проверять, один ли это объект
+                    elif prev_object_id is None and next_object_id is not None:
+                        # если нет предыдущего в словаре, а только этот и следующий, то проверять, один ли это объект
                         if cur_object_id == next_object_id:  # если это один объект, то это начало B
                             self.trainset.append([token_id, token_text, position, 'B' + cur_common_tag])
                         else:  # если разные, то это разные объекты
@@ -62,11 +65,11 @@ class TO_BILOU():
         return self.trainset
 
     def writing_to_file(self, filename='trainset.txt'):
-        def sortById(inputList):
-            return inputList[0]
+        def sort_by_id(input_list):
+            return input_list[0]
 
-        sortedList = sorted(self.trainset, key=sortById)
+        sorted_list = sorted(self.trainset, key=sort_by_id)
 
         with codecs.open(filename, 'w', encoding='utf-8') as f:
-            for token_params in sortedList:
+            for token_params in sorted_list:
                 f.write(" ".join(token_params) + '\n')
