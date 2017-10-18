@@ -8,7 +8,7 @@ import src.majorclass as maj_class
 import src.result_writer as result_writer
 import logging
 import src.dictionary_extraction as dict_extraction
-
+import sys
 
 class NER_Pipeline():
     def __init__(self):
@@ -37,47 +37,50 @@ class NER_Pipeline():
         train_objects = objects_reader.Read_objs()
         self.trainset_objects = train_objects.getting_data_from_files()
 
-        # logging.log(logging.INFO, self.trainset_spans)
-        # logging.log(logging.INFO, self.trainset_objects)
-        # logging.log(logging.INFO, self.trainset_tokens)
-
         d_e = dict_extraction.Dictionary_building(self.trainset_spans, self.trainset_objects)  # calling class DB_extract
         self.dic = d_e.get_dic()
 
-    def training(self):
+    def training(self, type_of_algorythm):
         bilou = to_bilou_tagging.TO_BILOU(self.dic)  # calling class BILOU with dic (for tagging)
         corpus = bilou.tag(self.trainset_tokens)  # tagging all tokens returning a corpus
         bilou.writing_to_file()  # optional, just to see what we have
         logging.log(logging.INFO, 'Named Entities are tagged')
-        # self.mc.fit(corpus)
+        self.mc.fit(corpus, type_of_algorythm)
 
-    def testing(self, test_set):
+    def testing(self):
         unbilou = from_bilou_tagging.FROM_BILOU()  # calling class FROMBILOU
-        predicted = self.mc.predict(test_set)  # predicting tags
-        if len(test_set) == len(predicted):  # if it's ok
-            result = unbilou.untag(test_set, predicted)  # we untag tokens
-            unbilou.writing_to_file()  # result with tags and words
-            return result
+        predicted = self.mc.predict(self.testset_tokens)  # predicting tags
+        if len(self.testset_tokens) == len(predicted):  # if it's ok
+            if len(self.testset_tokens.keys()) == len(predicted.keys()):
+                result = unbilou.untag(self.testset_tokens, predicted)  # we untag tokens
+                unbilou.writing_to_file()  # result with tags and words
+                return result
+            else:
+                print(len(self.testset_tokens.keys()))
+                print(len(predicted.keys()))
+                logging.log(logging.ERROR, 'lenght of inner test_set != predicted tags')
         else:
-            logging.log(logging.ERROR, 'lenght of test_set != predicted tags')
+            logging.log(logging.ERROR, 'lenght of outer test_set != predicted tags')
 
-    def writing_to_file(self, result=None):
-        # dic_res = {zip(['1757939', '1757940']): 'Person', zip(['1757939', '1757940']): 'Person'}
-        result_writer.to_file(result)
+    def writing_to_file(self, result=None, path=None):
+        result_writer.to_file(self.testset_tokens, result, path)
 
-    def ner(self):
+    def ner(self, type_of_algorythm):
+        print(type_of_algorythm)
         self.prep_stage()
         logging.log(logging.INFO, 'Prep stage finished')
         logging.log(logging.INFO, 'Training started')
-        self.training()
-        # logging.log(logging.INFO, 'Training finished')
-        # test_set = self.getting_testset()
-        # result_named_entities = self.testing(testset)
-        # logging.log(logging.INFO, 'Testing finished')
-        # logging.log(logging.INFO, result_named_entities)
-        # pipeline.writing_to_file(result_named_entities)
+        self.training(type_of_algorythm)
+        logging.log(logging.INFO, 'Training finished')
+        logging.log(logging.INFO, 'Testing started')
+        result_named_entities = self.testing()
+        logging.log(logging.INFO, 'Testing finished')
+        self.writing_to_file(result=result_named_entities)
 
 
 if __name__ == '__main__':
-    pipeline = NER_Pipeline()
-    pipeline.ner()
+    if len(sys.argv) == 1:
+        print('please mention the type of the algorythm you want to use \n (majorclass or random)')
+    else:
+        pipeline = NER_Pipeline()
+        pipeline.ner(sys.argv[1])
