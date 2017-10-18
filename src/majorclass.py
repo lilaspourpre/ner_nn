@@ -63,21 +63,40 @@ class MajorClass():
         else:
             raise Exception
 
-    def fit(self, corpus):
+    def fit(self, corpus, type_of_algorythm):
+        self.type_of_algorythm = type_of_algorythm
         data = []
         tags = []
         for row in corpus:
             data.append(row[:2])
             tags.append(row[3])
-        self.find_probabilities(tags)
+        if type_of_algorythm == 'majorclass':
+            self.checkMajority(tags)
+        elif type_of_algorythm == 'random':
+            self.find_probabilities(tags)
+        else:
+            logging.log(logging.ERROR, 'The type of algorytm you mentioned is not suitable')
+            raise ValueError
 
     def predict(self, data):
-        tags = []
-        for token in data:
-            random_number = random.uniform(0, 1) # gives random number from 0 to 1
-            for key in self.dic_of_cands:
-                if random_number>self.dic_of_cands[key][0] and random_number<=self.dic_of_cands[key][1]:
-                    tags.append(key)
-                    break
-        #tags = [self.majority_class for i in data]
-        return tags
+        dic_of_tag_for_each_file = {}
+        if self.type_of_algorythm == 'majorclass':
+            for file in data.keys():
+                tags = {}
+                for i in data[file]:
+                    tags[i] = self.majority_class
+                dic_of_tag_for_each_file[file] = tags
+        elif self.type_of_algorythm == 'random':
+            for file in data.keys():
+                tags = {}
+                for token in data[file]:
+                    random_number = random.uniform(0, 1) # gives random number from 0 to 1
+                    for key in self.dic_of_cands:
+                        if random_number>self.dic_of_cands[key][0] and random_number<=self.dic_of_cands[key][1]:
+                            tags[token]= key
+                            break
+                dic_of_tag_for_each_file[file]= tags
+        else:
+            logging.log(logging.ERROR, 'The type of algorytm you mentioned is not suitable')
+            raise ValueError
+        return dic_of_tag_for_each_file
