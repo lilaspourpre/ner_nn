@@ -5,68 +5,81 @@ import logging
 
 class FROM_BILOU():
     def __init__(self):
-        self.corpus = []
-        self.dic_of_results = {}
+        self.dic_of_files_of_results = {}
 
-    def untag(self, all_tokens_rows, tags):
-        for i in range(len(all_tokens_rows)):
-            self.corpus.append(list(all_tokens_rows[i]) + [tags[i]]) #now we have a corpus like in "to_bilou_tagging" output
+    def untag(self, dict_of_data, dict_of_tags):
+        for file in dict_of_data.keys():
+            dic_of_results = {}
+            ne_tokens = []
+            prev_tag = None
+            token_position_dic = {dict_of_data[file][key][0]: key for key in dict_of_data[file].keys()}
+            for token_id in dict_of_data[file]:
+                token_text = dict_of_data[file][token_id][2]
+                position = dict_of_data[file][token_id][0]
+                full_tag = dict_of_tags[file][token_id]
 
-        ne_tokens = []
-        prev_tag = None
+                cur_bilou_tag = full_tag[0:1]
+                cur_common_tag = full_tag[1:]
 
-        for token_id, token_text, position, full_tag in self.corpus:
-            index = self.corpus.index([token_id, token_text, position, full_tag])
-            cur_bilou_tag = full_tag[0:1]
-            cur_common_tag = full_tag[1:]
+                if cur_bilou_tag == 'U':  # если отдельный тег, то мы просто добавляем слово
+                    dic_of_results[tuple([token_id])] = cur_common_tag
 
-            if cur_bilou_tag == 'U': # если отдельный тег, то мы просто добавляем слово
-                self.dic_of_results[zip([token_id])] = cur_common_tag
+                elif cur_bilou_tag == 'B' or cur_bilou_tag == 'I':
 
-            elif cur_bilou_tag == 'B' or cur_bilou_tag == 'I':
-                if index == len(self.corpus)-1:
-                    logging.log(logging.ERROR, 'somehow bilou tag B(/I) is the last tag in whole corpus')
-                else:
-                    next_bilou_tag = self.corpus[index + 1][3][0:1]
-                    next_common_tag = self.corpus[index + 1][3][1:]
+                    if int(position) == max(list(map(lambda x: int(x), token_position_dic.keys()))):
+                        logging.log(logging.ERROR, 'somehow bilou tag B(/I) is the last tag in file ' + str(file))
+                    else:
+                        sorted_list = sorted(
+                            list(map(lambda x: int(x), token_position_dic.keys())))  # отсортированный список позиций
+                        next_index = sorted_list.index(int(position)) + 1  # находим индекс следующей позици
+                        next_position = sorted_list[next_index]
+                        next_token_id = token_position_dic[str(next_position)]
+                        next_bilou_tag = dict_of_tags[file][str(next_token_id)][0:1]
+                        next_common_tag = dict_of_tags[file][str(next_token_id)][1:]
 
-                if cur_bilou_tag == 'B': #если первый тег В
+                    if cur_bilou_tag == 'B':  # если первый тег В
 
-                    if ne_tokens != []: #если у нас что-то осталось вne_tokens
-                        self.dic_of_results[zip(ne_tokens)] = prev_tag #то мы это добавляем
-                        ne_tokens = [] #и ощищаем временное хранилище
-                        prev_tag = None
+                        if ne_tokens != []:  # если у нас что-то осталось вne_tokens
+                            dic_of_results[tuple(ne_tokens)] = prev_tag  # то мы это добавляем
+                            ne_tokens = []  # и ощищаем временное хранилище
+                            prev_tag = None
+
+                            if (next_bilou_tag == 'I' or next_bilou_tag == 'L') and next_common_tag == cur_common_tag:
+                                prev_tag = cur_common_tag
+                                ne_tokens.append(token_id)
+
+                            else:
+                                logging.log(logging.ERROR,
+                                            'after B (' + token_id + " " + token_text + ') is not I and L (or I/L of another class)')
+                                dic_of_results[tuple([token_id])] = cur_common_tag
+
+                    if cur_bilou_tag == 'I':  # do we need to check some parameters? same type is already checked
 
                         if (next_bilou_tag == 'I' or next_bilou_tag == 'L') and next_common_tag == cur_common_tag:
                             prev_tag = cur_common_tag
                             ne_tokens.append(token_id)
+
                         else:
-                            logging.log(logging.ERROR, 'after B ('+token_id+" "+token_text+') is not I and L (or I/L of another class)')
-                            self.dic_of_results[zip([token_id])] = cur_common_tag
+                            ne_tokens.append(token_id)
+                            dic_of_results[tuple(ne_tokens)] = cur_common_tag
+                            ne_tokens = []
+                            prev_tag = None
 
-                if cur_bilou_tag == 'I': #do we need to check some parameters? same type is already checked
+                elif cur_bilou_tag == 'L':
+                    ne_tokens.append(token_id)
+                    dic_of_results[tuple(ne_tokens)] = cur_common_tag
+                    ne_tokens = []
+                    prev_tag = None
 
-                    if (next_bilou_tag == 'I' or next_bilou_tag == 'L') and next_common_tag == cur_common_tag:
-                        prev_tag = cur_common_tag
-                        ne_tokens.append(token_id)
-
-                    else:
-                        ne_tokens.append(token_id)
-                        self.dic_of_results[zip(ne_tokens)] = cur_common_tag
-                        ne_tokens = []
-                        prev_tag = None
-
-            elif cur_bilou_tag == 'L':
-                ne_tokens.append(token_id)
-                self.dic_of_results[zip(ne_tokens)] = cur_common_tag
-                ne_tokens = []
-                prev_tag = None
-
-        if ne_tokens != []:
-            self.dic_of_results[zip(ne_tokens)] = prev_tag
-        return self.dic_of_results
+            if ne_tokens != []:
+                dic_of_results[tuple(ne_tokens)] = prev_tag
+            self.dic_of_files_of_results[file] = dic_of_results
+        return self.dic_of_files_of_results
 
     def writing_to_file(self, filename='testset.txt'):
         with codecs.open(filename, 'w', encoding='utf-8') as f:
-            for token_params in self.corpus:
-                f.write(" ".join(token_params) + '\n')
+            pass
+            for file in self.dic_of_files_of_results.keys():
+                f.write(file + '\n')
+                for token in self.dic_of_files_of_results[file]:
+                    f.write(str(list(token)) + ' ' + self.dic_of_files_of_results[file][token] + '\n')
