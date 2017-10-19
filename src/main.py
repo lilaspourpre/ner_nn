@@ -15,7 +15,8 @@ def main():
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random"')
 
     pipeline = ner.NerPipeline()
-    pipeline.ner(type_of_algorythm=args.algorythm, source_path = args.input_path, output_path = args.output_path)
+    pipeline.ner(type_of_algorythm=args.algorythm, source_path=args.input_path, output_path=args.output_path)
+
 
 if __name__ == "__main__":
     main()

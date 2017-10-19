@@ -24,10 +24,25 @@ def to_file(testset, dic_of_files_with_results, path):
             length, position = get_length_and_position(file, token_tuple, testset)
             res_filename = os.path.join(res_folder,
                                         file.replace('C:\\Users\\admin\\PycharmProjects\\ner_svm\\data\\devset\\',
-                                                     '') + '.result')
+                                                     '') + '.task1')
             with codecs.open(res_filename, 'a', encoding='utf-8') as f:
                 writer = csv.writer(f, delimiter=' ')
-                writer.writerow([dic_of_files_with_results[file][token_tuple], length, position])
+                new_ne_tag = change_ne_name(dic_of_files_with_results[file][token_tuple])
+                writer.writerow([new_ne_tag, position, length])
+
+def change_ne_name(tag):
+    if tag == 'Person':
+        return 'PER'
+    elif tag == 'Org':
+        return 'ORG'
+    elif tag == 'Location':
+        return 'LOC'
+    elif tag == 'LocOrg':
+        return 'LOC'
+    elif tag == 'Project':
+        return 'ORG'
+    else:
+        raise ValueError('tag '+tag+" is not the right tag")
 
 
 def get_length_and_position(file, token_tuple, test_set):

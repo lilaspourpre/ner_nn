@@ -8,7 +8,6 @@ import src.majorclass as maj_class
 import src.result_writer as result_writer
 import logging
 import src.dictionary_extraction as dict_extraction
-import sys
 
 
 class NerPipeline:
