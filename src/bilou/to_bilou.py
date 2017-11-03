@@ -1,45 +1,32 @@
 # -*- coding: utf-8 -*-
-from src.enitites import tagged_token_class
+from src.enitites.tagged_token import TaggedToken
 
 
-def get_tagged_tokens_from(dict_of_nes, token_list):
+def get_tagged_tokens_from(dict_of_nes, token_tuple):
     """
     :param object_dict: dict of objects
     :param span_dict: dict of spans
     :param token_list: list of tokens
     :return: list of tagged tokens classes
     """
-    list_of_tagged_tokens = []
-    for token in token_list:
-        tagged_token = tagged_token_class.TaggedTokens()
-        tagged_token.set_token(token)
-        tag = find_token_tag(token, dict_of_nes)
-        tagged_token.set_tag(tag)
-        list_of_tagged_tokens.append(tagged_token)
+    list_of_tagged_tokens = ['O' for i in range(len(token_tuple))]
+
+    for ne in dict_of_nes.values():
+        for id in ne['tokens_list']:
+            tag = format_tag(id, ne)
+            id_in_token_tuple = [token.get_id() for token in token_tuple].index(id)
+            token = token_tuple[id_in_token_tuple]
+            list_of_tagged_tokens[id_in_token_tuple] = TaggedToken(tag, token)
     return list_of_tagged_tokens
 
 
-def find_token_tag(token, dict_of_nes):
-    """
-    :param token:
-    :param object_dict:
-    :param span_dict:
-    :return:
-    """
-    common_list = []
-    for i in dict_of_nes.values():
-        common_list.extend(i[1])
-    if token.get_id() not in common_list:
-        return 'O'
-    else:
-        for tag, token_list in dict_of_nes.values():
-            if token.get_id() in token_list:
-                tag = tag_to_fact_ru_eval_format(tag)
-                bilou_tag = choose_bilou_tag_for(token.get_id(), token_list)
-                return bilou_tag + tag
+def format_tag(id, ne):
+    bilou = __choose_bilou_tag_for(id, ne['tokens_list'])
+    formatted_tag = __tag_to_fact_ru_eval_format(ne['tag'])
+    return bilou + formatted_tag
 
 
-def choose_bilou_tag_for(token_id, token_list):
+def __choose_bilou_tag_for(token_id, token_list):
     if len(token_list) == 1:
         return 'U'
     elif len(token_list) > 1:
@@ -51,7 +38,7 @@ def choose_bilou_tag_for(token_id, token_list):
             return 'I'
 
 
-def tag_to_fact_ru_eval_format(tag):
+def __tag_to_fact_ru_eval_format(tag):
     if tag == 'Person':
         return 'PER'
     elif tag == 'Org':

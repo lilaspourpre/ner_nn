@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-class TaggedTokens:
-    def __init__(self, tag=None, token=None):
+class TaggedToken:
+    def __init__(self, tag, token):
         self.__tag = tag
         self.__token = token
 
@@ -10,9 +10,3 @@ class TaggedTokens:
 
     def get_tag(self):
         return self.__tag
-
-    def set_tag(self, tag):
-        self.__tag = tag
-
-    def set_token(self, token):
-        self.__token = token
