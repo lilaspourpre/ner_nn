@@ -2,11 +2,13 @@
 import codecs
 import numpy as np
 import pymorphy2
+
 morph = pymorphy2.MorphAnalyzer()
+
 
 class FeatureMaking:
     def __init__(self, path):
-        if path == None:
+        if path is None:
             path = "C:\\Users\\admin\\PycharmProjects\\ner_svm\\feature_list.txt"
         self.list_of_features_to_use = self.choose_features(path)
         self.token_id = None

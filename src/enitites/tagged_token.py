@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class TaggedToken:
     def __init__(self, tag, token):
         self.__tag = tag
@@ -10,6 +11,6 @@ class TaggedToken:
 
     def get_tag(self):
         return self.__tag
-    
+
     def __repr__(self):
         return "<" + self.__tag + "_" + str(self.__token) + ">"

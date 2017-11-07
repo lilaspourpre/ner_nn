@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from sklearn import svm
 import numpy as np
-from  src.machine_learning.abstract_method import AbsractMethod
+from src.machine_learning.abstract_method import AbsractMethod
 import src.machine_learning.features as features
 
 

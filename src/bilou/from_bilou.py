@@ -41,7 +41,6 @@ class FromBILOU:
 
         return self.dic_of_files_of_results
 
-
     def tag_b_or_i_case(self, position, token_position_dic, file, dict_of_tags, cur_bilou_tag, ne_tokens, token_id,
                         token_text, dic_of_results, prev_tag, cur_common_tag):
         if int(position) == max(list(map(lambda x: int(x), token_position_dic.keys()))):
@@ -66,7 +65,6 @@ class FromBILOU:
                                                                       dic_of_results)
 
         return dic_of_results, ne_tokens, prev_tag
-
 
     def tag_b_case(self, ne_tokens, dic_of_results, prev_tag, next_bilou_tag, next_common_tag, cur_common_tag,
                    token_id, token_text):

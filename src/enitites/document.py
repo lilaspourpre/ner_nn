@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class Document:
     def __init__(self, list_of_tagged_tokens):
         self.__list_of_tagged_tokens = list_of_tagged_tokens

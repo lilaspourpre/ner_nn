@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
+
 class Token:
-    def __init__(self, id, position, length, text):
-        self.__id = id
+    def __init__(self, tokenid, position, length, text):
+        self.__id = tokenid
         self.__position = position
         self.__length = length
         self.__text = text
@@ -21,6 +22,6 @@ class Token:
 
     def get_text(self):
         return self.__text
-    
+
     def __str__(self):
         return self.__text

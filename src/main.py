@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import argparse
-# XXX double import
-import logging
 import os
 import logging
 import codecs
@@ -24,7 +22,8 @@ def initiate_logger():
 
 def main():
     args = parse_arguments()
-    nes = get_nes_from(method=args.algorythm, trainset_path=args.trainset_path, testset_path=args.testset_path)
+    nes = train_and_compute_nes_from(method=args.algorythm, trainset_path=args.trainset_path,
+                                     testset_path=args.testset_path)
     write_to_file(nes, args.output_path)
 
 
@@ -45,8 +44,7 @@ def parse_arguments():
     return args
 
 
-# XXX train_and_compute_nes():
-def get_nes_from(method, trainset_path, testset_path):
+def train_and_compute_nes_from(method, trainset_path, testset_path):
     """
     :param method: method to train model
     :param trainset_path: path where the devset is
