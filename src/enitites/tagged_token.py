@@ -10,3 +10,6 @@ class TaggedToken:
 
     def get_tag(self):
         return self.__tag
+    
+    def __repr__(self):
+        return "<" + self.__tag + "_" + str(self.__token) + ">"

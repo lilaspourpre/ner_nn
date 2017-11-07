@@ -38,7 +38,7 @@ def __get_filenames_from(path):
     for root, dirs, files in os.walk(path):
         for file in files:
             if file.endswith('.txt'):
-                list_of_filenames.append(os.path.join(root, file[:-4]))
+                list_of_filenames.append(os.path.join(root, file[:-4])) # XXX splitext
     logging.log(logging.INFO, "Successfully got filenames from path")
     return list_of_filenames
 
@@ -79,7 +79,7 @@ def __get_tokens_from(filename):
 def __parse_file(filename):
     """
     :param filename:
-    :return: list of row lists ['id','position','length','text']
+    :return: list of row lists ['id','position','length','text'] # not correct!
     """
     rows_to_return = []
     with codecs.open(filename, 'r', encoding='utf-8') as f:
@@ -109,7 +109,7 @@ def __get_tagged_tokens_from(filename, tokens):
     :param tokens: tokens that need to be tagged
     :return: list of tagged tokens classes
     """
-    span_dict = __to_dict_of_spans(filename + '.spans', [token.get_id() for token in tokens])
+    span_dict = __to_dict_of_spans(filename + '.spans', [token.get_id() for token in tokens]) # XXX span_to_tokens or spanid_to_tokenids
     object_dict = __to_dict_of_objects(filename + '.objects')
     dict_of_nes = __merge(object_dict, span_dict)
     return to_bilou.get_tagged_tokens_from(dict_of_nes, tokens)
@@ -130,7 +130,7 @@ def __to_dict_of_spans(spanfile, token_ids):
         span_id = span[0]
         span_start = span[4]
         span_length_in_tokens = span[5]
-        tuple_of_token_of_spans = __find_tokens_for(span_start, span_length_in_tokens, token_ids)
+        tuple_of_token_of_spans = __find_tokens_for(span_start, span_length_in_tokens, token_ids) # XXX I'd put int(span_length_in_tokens) here
 
         dict_of_spans[span_id] = tuple_of_token_of_spans
     return dict_of_spans
@@ -147,7 +147,7 @@ def __find_tokens_for(start, length, token_ids):
     index = token_ids.index(start)
     for i in range(int(length)):
         list_of_tokens.append(token_ids[index + i])
-    return tuple(list_of_tokens)
+    return tuple(list_of_tokens) # XXX not tuple, but list 
 
 
 # ___________________________________________________________________________________
@@ -181,6 +181,7 @@ def __merge(object_dict, span_dict):
             tag = object_dict[object_id]['tag']
             tokens_list = __get_all_tokens_for_spans(span_dict, object_dict[object_id]['spans'])
             named_enities_dict[object_id] = {'tag':tag, 'tokens_list':tokens_list}
+    # XXX intersecting objects; O-tokens within Named Entity (lost tokens possible)
     return named_enities_dict
 
 
@@ -188,4 +189,4 @@ def __get_all_tokens_for_spans(span_dict, span_list):
     common_list = []
     for span in span_list:
         common_list.extend(span_dict[span])
-    return list(set(sorted(common_list)))
+    return list(set(sorted(common_list))) # XXX sorted(list(set(common_list)))

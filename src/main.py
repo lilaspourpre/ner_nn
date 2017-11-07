@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
+# XXX double import
 import logging
 import os
 import logging
@@ -44,6 +45,7 @@ def parse_arguments():
     return args
 
 
+# XXX train_and_compute_nes():
 def get_nes_from(method, trainset_path, testset_path):
     """
     :param method: method to train model

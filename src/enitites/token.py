@@ -21,3 +21,6 @@ class Token:
 
     def get_text(self):
         return self.__text
+    
+    def __str__(self):
+        return self.__text
