@@ -183,44 +183,51 @@ def __merge(object_dict, span_dict):
     for object_id in object_dict:
         tag = object_dict[object_id]['tag']
         tokens_list = __get_all_tokens_for_spans(span_dict, object_dict[object_id]['spans'])
+        named_enities_dict, token_dict_with_object_ids = __resolve_ambiguity_and_update_dict(named_enities_dict,
+                                                                                             token_dict_with_object_ids,
+                                                                                             tokens_list, object_id, tag)
+    return named_enities_dict
 
-        for token in tokens_list:
 
-            if token in token_dict_with_object_ids.keys():
-                prev_token_list = named_enities_dict[token_dict_with_object_ids[token]]['tokens_list']
+def __resolve_ambiguity_and_update_dict(named_enities_dict, token_dict_with_object_ids, tokens_list, object_id, tag):
+    for token in tokens_list:
 
+        if token in token_dict_with_object_ids.keys():
+            prev_token_list = named_enities_dict[token_dict_with_object_ids[token]]['tokens_list']
 
-                if len(tokens_list) >= len(prev_token_list):
-                    named_enities_dict, token_dict_with_object_ids = __delete_previous_entity(named_enities_dict,
-                                                                                              token_dict_with_object_ids,
-                                                                                              token, prev_token_list)
-                    token_dict_with_object_ids[token] = object_id
-
-                elif len(tokens_list) == len(prev_token_list) and tag == \
-                        named_enities_dict[token_dict_with_object_ids[token]]['tag']:
-                    named_enities_dict, token_dict_with_object_ids = __delete_previous_entity(named_enities_dict,
-                                                                                              token_dict_with_object_ids,
-                                                                                              token, prev_token_list)
-
-                    token_dict_with_object_ids[token] = object_id
-                    named_enities_dict[object_id] = {'tag': tag,
-                                                     'tokens_list':
-                                                         sorted(list(set.union(set(tokens_list),set(prev_token_list))))}
-                    break
-                elif len(tokens_list) == len(prev_token_list) and tag != \
-                        named_enities_dict[token_dict_with_object_ids[token]]['tag']:
-                    print('Error in object intersection')
-                    print(tokens_list)
-                    print(named_enities_dict[token_dict_with_object_ids[token]]['tokens_list'])
-                    raise ValueError
-                else:
-                    break
-            else:
+            if len(tokens_list) >= len(prev_token_list):
+                named_enities_dict, token_dict_with_object_ids = __delete_previous_entity(named_enities_dict,
+                                                                                          token_dict_with_object_ids,
+                                                                                          token, prev_token_list)
                 token_dict_with_object_ids[token] = object_id
 
+            elif len(tokens_list) == len(prev_token_list) and tag == \
+                    named_enities_dict[token_dict_with_object_ids[token]]['tag']:
+                named_enities_dict, token_dict_with_object_ids = __delete_previous_entity(named_enities_dict,
+                                                                                          token_dict_with_object_ids,
+                                                                                          token, prev_token_list)
+
+                token_dict_with_object_ids[token] = object_id
+                named_enities_dict[object_id] = {'tag': tag,
+                                                 'tokens_list':
+                                                     sorted(list(set.union(set(tokens_list), set(prev_token_list))))}
+                break
+
+            elif len(tokens_list) == len(prev_token_list) and tag != \
+                    named_enities_dict[token_dict_with_object_ids[token]]['tag']:
+                print('Error in object intersection')
+                print(tokens_list)
+                print(named_enities_dict[token_dict_with_object_ids[token]]['tokens_list'])
+                raise ValueError
+            else:
+                break
         else:
-            named_enities_dict[object_id] = {'tag': tag, 'tokens_list': tokens_list}
-    return named_enities_dict
+            token_dict_with_object_ids[token] = object_id
+
+    else:
+        named_enities_dict[object_id] = {'tag': tag, 'tokens_list': tokens_list}
+    return named_enities_dict, token_dict_with_object_ids
+
 
 def __delete_previous_entity(named_enities_dict, token_dict_with_object_ids, token, prev_token_list):
     named_enities_dict.pop(token_dict_with_object_ids[token])

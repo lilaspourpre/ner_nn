@@ -16,7 +16,7 @@ def get_tagged_tokens_from(dict_of_nes, token_list):
             id_in_token_tuple = dict_of_tokens_with_indexes[tokenid]
             token = token_list[id_in_token_tuple]
             list_of_tagged_tokens[id_in_token_tuple] = TaggedToken(tag, token)
-    # print(list_of_tagged_tokens)
+    print(list_of_tagged_tokens)
     return list_of_tagged_tokens
 
 
