@@ -62,13 +62,20 @@ def train_and_compute_nes_from(model_trainer, trainset_path, testset_path):
 
 def choose_model(method):
     if method == 'majorclass':
-        return MajorClassModelTrainer()
+        return MajorClassModelTrainer(), []
     elif method == 'random':
-        return RandomModelTrainer()
+        return RandomModelTrainer(), []
     elif method == 'svm':
-        return SvmModelTrainer(decision_function_shape='ovo', kernel=None)
+        return SvmModelTrainer(decision_function_shape='ovo', kernel=None), get_feature_list()
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
+
+def get_feature_list():
+    list_of_features = []
+    list_of_features.append(1)
+    list_of_features.append(1)
+    list_of_features.append(1)
+    return list_of_features
 
 def write_to_file(nes, path):
     """
