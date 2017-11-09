@@ -6,6 +6,9 @@ import codecs
 import csv
 from src import trainer
 from src import ne_creator
+from src.machine_learning.majorclass_model_trainer import MajorClassModelTrainer
+from src.machine_learning.random_model_trainer import RandomModelTrainer
+from src.machine_learning.svm_model_trainer import SvmModelTrainer
 
 
 def initiate_logger():
@@ -22,7 +25,8 @@ def initiate_logger():
 
 def main():
     args = parse_arguments()
-    nes = train_and_compute_nes_from(method=args.algorythm, trainset_path=args.trainset_path,
+    model_trainer = choose_model(args.algorythm)
+    nes = train_and_compute_nes_from(model_trainer=model_trainer, trainset_path=args.trainset_path,
                                      testset_path=args.testset_path)
     write_to_file(nes, args.output_path)
 
@@ -39,12 +43,10 @@ def parse_arguments():
     parser.add_argument("-o", "--output_path", help="path to the output files directory")
 
     args = parser.parse_args()
-    if args.algorythm != 'majorclass' and args.algorythm != 'random' and args.algorythm != 'svm':
-        raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
     return args
 
 
-def train_and_compute_nes_from(method, trainset_path, testset_path):
+def train_and_compute_nes_from(model_trainer, trainset_path, testset_path):
     """
     :param method: method to train model
     :param trainset_path: path where the devset is
@@ -52,10 +54,21 @@ def train_and_compute_nes_from(method, trainset_path, testset_path):
     :return: named entities
     """
     logging.log(logging.INFO, "START OF GETTING NEs")
-    model = trainer.train(method, trainset_path)
+    model = trainer.train(model_trainer, trainset_path)
+    print(model)
+    exit(0)
     nes = ne_creator.compute_nes(testset_path, model)
     return nes
 
+def choose_model(method):
+    if method == 'majorclass':
+        return MajorClassModelTrainer()
+    elif method == 'random':
+        return RandomModelTrainer()
+    elif method == 'svm':
+        return SvmModelTrainer(decision_function_shape='ovo', kernel=None)
+    else:
+        raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
 
 def write_to_file(nes, path):
     """
