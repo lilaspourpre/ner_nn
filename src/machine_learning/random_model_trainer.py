@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from collections import Counter
 from src.machine_learning.i_model_trainer import ModelTrainer
 from src.enitites.models.random_model import RandomModel
@@ -36,5 +37,5 @@ class RandomModelTrainer(ModelTrainer):
     def train(self, tagged_vectors):
         tags = [tagged_vector.get_tag() for tagged_vector in tagged_vectors]
         dict_of_distributed_probabilities = self.__find_probabilities(tags)
-        print(dict_of_distributed_probabilities)
+        logging.log(logging.INFO, dict_of_distributed_probabilities)
         return RandomModel(dict_of_distributed_probabilities)
