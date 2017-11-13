@@ -9,6 +9,7 @@ class CaseFeature(AbstractFeature):
         return self._count_case_vector(token)
 
     def _count_case_vector(self, token):
+        # XXX bad idea of encoding
         if token.get_text().isupper():
             return [0, 0, 0]
         elif token.get_text().islower():

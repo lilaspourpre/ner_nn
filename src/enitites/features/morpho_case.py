@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pymorphy2
 
+# XXX bad idea. Why not use it as class property?
 morph = pymorphy2.MorphAnalyzer()
 from src.enitites.features.abstract_feature import AbstractFeature
 
@@ -15,6 +16,7 @@ class MorphoFeature(AbstractFeature):
     def _count_morpho_vector(self, token):
         parsed_word = morph.parse(token.get_text())[0]
         case = str(parsed_word.tag.case)
+        # XXX bad encoding idea
         if 'nomn' in case:
             return [0, 0, 0, 0]
         elif 'gent' in case:

@@ -15,6 +15,7 @@ class POSFeature(AbstractFeature):
     def _count_pos_vector(self, token):
         parsed_word = morph.parse(token.get_text())[0]
         pos = str(parsed_word.tag.POS)
+        # XXX bad encoding
         if 'NOUN' in pos:
             return [0, 0, 0]
         elif 'VERB' in pos:

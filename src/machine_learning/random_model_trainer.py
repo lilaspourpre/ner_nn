@@ -21,8 +21,10 @@ class RandomModelTrainer(ModelTrainer):
         counter = 0
         dict_of_distributed_probabilities = {}
 
+        # XXX consider using dict_of_candidates_with_counted_tags.items()
         for candidate in dict_of_candidates_with_counted_tags:
             current_counted_tags = dict_of_candidates_with_counted_tags[candidate]
+            # XXX what's the use of round here?
             current_weight = round(current_counted_tags / quantity_of_all_tags, NUMBER_OF_SYMBOLS_AFTER_COMMA)
             if counter == 0:
                 dict_of_distributed_probabilities[candidate] = [-0.1, current_weight]

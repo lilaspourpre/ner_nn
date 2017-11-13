@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from src.enitites.features.case import CaseFeature
 
-
+# XXX use composition instead of Inheritance
 class NextCaseFeature(CaseFeature):
     def __init__(self):
         super().__init__()

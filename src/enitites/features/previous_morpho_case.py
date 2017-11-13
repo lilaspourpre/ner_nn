@@ -4,7 +4,7 @@ import pymorphy2
 morph = pymorphy2.MorphAnalyzer()
 from src.enitites.features.morpho_case import MorphoFeature
 
-
+# XXX duplicates NextMorphoCaseFeature
 class PrevMorphoCaseFeature(MorphoFeature):
     def __init__(self):
         super().__init__()

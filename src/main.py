@@ -37,7 +37,7 @@ def initiate_logger():
     if not os.path.exists(dir_to_write):
         os.mkdir(dir_to_write)
     file_to_write = os.path.join(dir_to_write, datetime.now().strftime("%Y-%m-%d %H-%M-%S") + '.txt')
-    handler2 = logging.FileHandler(filename=file_to_write)
+    handler2 = logging.FileHandler(filename=file_to_write) # XXX why not call it toFileHandler instead of handler2?
     formatter = logging.Formatter("%(levelname)s: %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
@@ -47,7 +47,7 @@ def initiate_logger():
 
 def main():
     args = parse_arguments()
-    model_trainer = choose_model(args.algorythm)
+    model_trainer = choose_model(args.algorythm) # XXX example of how NOT to use tuples
     nes = train_and_compute_nes_from(model_trainer=model_trainer, trainset_path=args.trainset_path,
                                      testset_path=args.testset_path)
     write_to_file(nes, args.output_path)
@@ -92,7 +92,10 @@ def choose_model(method):
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
 
+# XXX its not feature list - its a feature!
 def get_feature_list():
+    # XXX why not use brief notation:
+    # XXX list_of_features = [POSFeature(), PositionFeature(), ...]
     list_of_features = []
     list_of_features.append(POSFeature())
     list_of_features.append(PositionFeature())

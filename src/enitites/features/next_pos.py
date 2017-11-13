@@ -6,7 +6,7 @@ import pymorphy2
 morph = pymorphy2.MorphAnalyzer()
 from src.enitites.features.part_of_speech import POSFeature
 
-
+# XXX don't use inheritance! Duplicated code detected: compare with next_case!
 class NextPOSFeature(POSFeature):
     def __init__(self):
         super().__init__()

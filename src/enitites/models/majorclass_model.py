@@ -7,6 +7,7 @@ class MajorClassModel(Model):
         super().__init__()
         self.major_class = major_class
 
+    # XXX seems like single vector instead of list
     def predict(self, list_of_vectors):
         return self.major_class
 

@@ -11,6 +11,7 @@ class MajorClassModelTrainer(ModelTrainer):
 
     # Function to check if the candidate occurs more than n/2 times
     def __is_major(self, length, candidate_count):
+        # XXX return candidate_count > length / 2
         if candidate_count > length / 2:
             return True
         else:
@@ -20,6 +21,7 @@ class MajorClassModelTrainer(ModelTrainer):
     def __find_majority_class(self, list_of_candidates):
         counted_tags = Counter(list_of_candidates)
         candidate_tag, candidate_count = counted_tags.most_common(1)[0]
+        # XXX strange logic with "candidate occurs more than n/2 times"
         if self.__is_major(len(list_of_candidates), candidate_count):
             logging.log(logging.INFO, 'major_class = ' + str(candidate_tag))
             return candidate_tag
