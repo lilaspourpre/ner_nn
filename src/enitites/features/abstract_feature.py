@@ -7,7 +7,7 @@ class AbstractFeature(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def compute_vector_for(self, token):
+    def compute_vector_for(self, token, document):
         """
         :param token: tokenObject
         :return: vector
