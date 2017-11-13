@@ -14,3 +14,6 @@ class RandomModel(Model):
             if self.dict_of_distributed_probabilities[tag][0] < random_number \
                     <= self.dict_of_distributed_probabilities[tag][1]:
                 return tag
+
+    def __repr__(self):
+        return 'random_model'

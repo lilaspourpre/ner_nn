@@ -10,3 +10,6 @@ class SvmModel(Model):
     def predict(self, vector):
         array_of_vectors = np.array([vector])
         return self.svm.predict(array_of_vectors)[0]
+
+    def __repr__(self):
+        return 'svm_model'

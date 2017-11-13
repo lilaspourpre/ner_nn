@@ -9,3 +9,6 @@ class MajorClassModel(Model):
 
     def predict(self, list_of_vectors):
         return self.major_class
+
+    def __repr__(self):
+        return 'majorclass_model'
