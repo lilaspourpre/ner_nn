@@ -5,8 +5,10 @@ class Model():
     def __init__(self):
         pass
 
-    # XXX vectors or vector? major takes list of vectors, but returns single tag
-    # XXX random and svm take on vector, return tag
     @abstractmethod
-    def predict(self, vectors):
+    def predict(self, vector):
+        """
+        :param vector: getting 1 vetor
+        :return: tag for the vector
+        """
         pass

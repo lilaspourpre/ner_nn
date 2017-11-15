@@ -9,19 +9,24 @@ class MajorClassModelTrainer(ModelTrainer):
     def __init__(self):
         super().__init__()
 
-    # Function to check if the candidate occurs more than n/2 times
     def __is_major(self, length, candidate_count):
-        # XXX return candidate_count > length / 2
-        if candidate_count > length / 2:
-            return True
-        else:
-            return False
+        """
+        Function to check if the candidate occurs more than n/2 times
+        :param length: length of tokenlist
+        :param candidate_count: how many times does the candidate occurs
+        :return: True if is the majority class else if not
+        """
+        return candidate_count > length / 2
 
-    # Function to print Majority Element
     def __find_majority_class(self, list_of_candidates):
+        """
+        :param list_of_candidates:
+        :return:
+        """
         counted_tags = Counter(list_of_candidates)
         candidate_tag, candidate_count = counted_tags.most_common(1)[0]
         # XXX strange logic with "candidate occurs more than n/2 times"
+        # YYY: why?
         if self.__is_major(len(list_of_candidates), candidate_count):
             logging.log(logging.INFO, 'major_class = ' + str(candidate_tag))
             return candidate_tag

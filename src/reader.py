@@ -178,7 +178,6 @@ def __to_dict_of_objects(object_file):
 #
 
 # XXX maybe keep it a bit more simple?
-
 def __merge(object_dict, span_dict):
     named_enities_dict = {}
     token_dict_with_object_ids = {}

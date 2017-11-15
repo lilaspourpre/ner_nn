@@ -1,45 +1,28 @@
 # -*- coding: utf-8 -*-
 import pymorphy2
 
-# XXX bad idea. Why not use it as class property?
-morph = pymorphy2.MorphAnalyzer()
 from src.enitites.features.abstract_feature import AbstractFeature
 
 
 class MorphoFeature(AbstractFeature):
-    def __init__(self):
+    def __init__(self, cases_to_detect=None):
         super().__init__()
-
-    def compute_vector_for(self, token, document):
-        return self._count_morpho_vector(token)
-
-    def _count_morpho_vector(self, token):
-        parsed_word = morph.parse(token.get_text())[0]
-        case = str(parsed_word.tag.case)
-        # XXX bad encoding idea
-        if 'nomn' in case:
-            return [0, 0, 0, 0]
-        elif 'gent' in case:
-            return [0, 0, 0, 1]
-        elif 'datv' in case:
-            return [0, 0, 1, 0]
-        elif 'accs' in case:
-            return [0, 0, 1, 1]
-        elif 'ablt' in case:
-            return [0, 1, 0, 0]
-        elif 'loct' in case:
-            return [0, 1, 0, 1]
-        elif 'voct' in case:
-            return [0, 1, 1, 0]
-        elif 'gen2' in case:
-            return [0, 1, 1, 1]
-        elif 'acc2' in case:
-            return [1, 0, 0, 0]
-        elif 'loc2' in case:
-            return [1, 0, 0, 1]
+        self.morph = pymorphy2.MorphAnalyzer()
+        if cases_to_detect is None:
+            self.CASES = ['nomn', 'gent', 'datv', 'accs', 'ablt', 'loct', 'voct', 'gen2', 'acc2', 'loc2']
         else:
-            return [1, 0, 1, 0]
+            self.CASES = cases_to_detect
 
+    def compute_vector_for(self, token, tokenlist):
+        parsed_word = self.morph.parse(token.get_text())[0]
+        current_case = str(parsed_word.tag.case)
+        result = []
+        for case in self.CASES:
+            result.append(1) if case in current_case else result.append(0)
+        return result
+
+    def get_vector_size(self):
+        return len(self.CASES)
 
     def __repr__(self):
         return 'morphological case'
