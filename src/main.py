@@ -48,7 +48,7 @@ def initiate_logger():
 
 def main():
     args = parse_arguments()
-    trainer, feature = choose_model(args.algorythm, args.window)  # XXX example of how NOT to use tuples
+    trainer, feature = choose_model(args.algorythm, args.window)
     nes = train_and_compute_nes_from(model_trainer=trainer, feature=feature, trainset_path=args.trainset_path,
                                      testset_path=args.testset_path)
     write_to_file(nes, args.output_path)
@@ -63,7 +63,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-a", "--algorythm", help='"majorclass" or "random" options are available')
-    parser.add_argument("-w", "--window", help='window size for context')
+    parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-t", "--trainset_path", help="path to the trainset files directory")
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")
     parser.add_argument("-o", "--output_path", help="path to the output files directory")
@@ -74,7 +74,7 @@ def parse_arguments():
 
 # --------------------------------------------------------------------
 
-def choose_model(method ,window):
+def choose_model(method, window):
     """
     :param method: method from argparse
     :return: model trainer + composite
@@ -84,29 +84,32 @@ def choose_model(method ,window):
     elif method == 'random':
         return RandomModelTrainer(), FeatureComposite()
     elif method == 'svm':
-        feature = get_composite_feature(window) if window else get_composite_feature()
+        feature = get_composite_feature(window)
         return SvmModelTrainer(decision_function_shape='ovo', kernel=None), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
 
 
-def get_composite_feature(window=2):
+def get_composite_feature(window):
     """
     Adding features to composite
     :return: composite (feature storing features)
     """
-    if window > 0:
-        list_of_features = [LengthFeature()]
-        for offset in range(-window, window):
-            list_of_features.append(ContextFeature(POSFeature(), offset))
-            list_of_features.append(ContextFeature(CaseFeature(), offset))
-            list_of_features.append(ContextFeature(MorphoFeature(), offset))
-    else:
-        list_of_features = [LengthFeature(), CaseFeature(), MorphoFeature()]
+    list_of_features = [LengthFeature()]
+    basic_features = [POSFeature(), CaseFeature(), MorphoFeature()]
+    offsets = compute_offsets(window)
+    for feature in basic_features:
+        list_of_features.append(feature)
+        for offset in offsets:
+            list_of_features.append(ContextFeature(feature, offset))
     composite = FeatureComposite(list_of_features)
     logging.log(logging.INFO, repr(composite))
     return composite
 
+def compute_offsets(window):
+    result = list(range(1, window + 1))
+    result.extend(range(-window, 0))
+    return result
 
 # --------------------------------------------------------------------
 
