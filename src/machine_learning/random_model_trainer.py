@@ -16,20 +16,23 @@ class RandomModelTrainer(ModelTrainer):
         :return: dict_of_distributed_probabilities
         """
         dict_of_candidates_with_counted_tags = Counter(list_of_candidates)
-        prev_weight, counter = 0, 0
+        prev_weight = 0
+        counter = 0
         dict_of_distributed_probabilities = {}
 
-        for candidate in dict_of_candidates_with_counted_tags.items():
-            current_count = candidate[1]
+        for tag, current_count in dict_of_candidates_with_counted_tags.items():
             # XXX what's the use of round here?
             # YYY current weight for creating list with the range (two numbers), then we compare the randomly generated number with this range
+            # ZZZ I understand the code. I just can't understand the invocation of round(...)
+            # In other words, why can't i simply write:
+            # current_weight = current_count / len(list_of_candidates)
             current_weight = round(current_count / len(list_of_candidates), self.NUMBER_OF_SYMBOLS_AFTER_COMMA)
             if counter == 0:
-                dict_of_distributed_probabilities[candidate[0]] = [-0.1, current_weight]
+                dict_of_distributed_probabilities[tag] = [-0.1, current_weight]
             elif counter == len(dict_of_candidates_with_counted_tags) - 1:
-                dict_of_distributed_probabilities[candidate[0]] = [prev_weight, 1]
+                dict_of_distributed_probabilities[tag] = [prev_weight, 1]
             else:
-                dict_of_distributed_probabilities[candidate[0]] = [prev_weight, prev_weight + current_weight]
+                dict_of_distributed_probabilities[tag] = [prev_weight, prev_weight + current_weight]
             prev_weight += current_weight
             counter += 1
         return dict_of_distributed_probabilities
