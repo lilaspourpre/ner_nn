@@ -20,7 +20,7 @@ def create_list_of_tagged_vectors(documents, feature):
 
 # --------------------------------------------------------------------
 
-def __create_tagged_vector_for(taggedtoken, tokenslist, feature_composite):
+def __create_tagged_vector_for(taggedtoken, tokenslist, feature):
     tag = taggedtoken.get_tag()
-    vector = feature_composite.compute_vector_for(taggedtoken.get_token(), tokenslist)
+    vector = feature.compute_vector_for(taggedtoken.get_token(), tokenslist)
     return TaggedVector(vector=vector, tag=tag)

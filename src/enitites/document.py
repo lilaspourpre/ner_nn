@@ -9,8 +9,8 @@ class Document:
         return self.__list_of_tagged_tokens
 
     def get_tokens(self):
-        document_list_with_tokens = []
+        tokens = []
         for tagged_token in self.get_tagged_tokens():
-            document_list_with_tokens.append(tagged_token.get_token())
-        return document_list_with_tokens
+            tokens.append(tagged_token.get_token())
+        return tokens
 

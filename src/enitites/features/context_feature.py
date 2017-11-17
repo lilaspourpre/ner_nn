@@ -2,9 +2,9 @@
 from src.enitites.features.abstract_feature import  AbstractFeature
 
 class ContextFeature(AbstractFeature):
-    def __init__(self, AbstractFeature, offset):
+    def __init__(self, feature : AbstractFeature, offset):
         super().__init__()
-        self.feature = AbstractFeature
+        self.feature = feature
         self.offset = offset
 
     def compute_vector_for(self, token, tokens_list):

@@ -27,6 +27,11 @@ class MajorClassModelTrainer(ModelTrainer):
         candidate_tag, candidate_count = counted_tags.most_common(1)[0]
         # XXX strange logic with "candidate occurs more than n/2 times"
         # YYY: why?
+        # ZZZ: from my point of view, major tag is just the most frequent tag.
+        # From your point of view, it is the tag, which appears in more than half of instances.
+        # My interpretation seems to be OK, when we have, for example, 3 tags which appear
+        # in 40%, 30% and 30% of instances.
+        # Your interpretation seems to fail with Exception
         if self.__is_major(len(list_of_candidates), candidate_count):
             logging.log(logging.INFO, 'major_class = ' + str(candidate_tag))
             return candidate_tag

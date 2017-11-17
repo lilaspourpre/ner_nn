@@ -10,7 +10,7 @@ class AbstractFeature():
     def compute_vector_for(self, token, tokenslist):
         """
         :param token: tokenObject
-        XXX and what is document?
+        :param tokenslist: list of all document tokens
         :return: vector
         """
         pass
