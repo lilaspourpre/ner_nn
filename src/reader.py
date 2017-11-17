@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import collections
 import os
 import codecs
 import logging
@@ -112,7 +113,7 @@ def __get_tagged_tokens_from(filename, tokens):
     span_dict = __spanid_to_tokenids(filename + '.spans',
                                      [token.get_id() for token in tokens])  # XXX span_to_tokens or spanid_to_tokenids
     object_dict = __to_dict_of_objects(filename + '.objects')
-    dict_of_nes = __merge(object_dict, span_dict)
+    dict_of_nes = __merge(object_dict, span_dict, [token.get_id() for token in tokens])
     return to_bilou.get_tagged_tokens_from(dict_of_nes, tokens)
 
 
@@ -149,7 +150,7 @@ def __find_tokens_for(start, length, token_ids):
     index = token_ids.index(start)
     for i in range(length):
         list_of_tokens.append(token_ids[index + i])
-    return list_of_tokens  # XXX not tuple, but list
+    return list_of_tokens
 
 
 # ___________________________________________________________________________________
@@ -177,61 +178,80 @@ def __to_dict_of_objects(object_file):
 #       Merge
 #
 
-# XXX maybe keep it a bit more simple?
-def __merge(object_dict, span_dict):
-    named_enities_dict = {}
-    token_dict_with_object_ids = {}
-    for object_id in object_dict:
-        tag = object_dict[object_id]['tag']
-        tokens_list = __get_all_tokens_for_spans(span_dict, object_dict[object_id]['spans'])
-
-        for token in tokens_list:
-
-            if token in token_dict_with_object_ids.keys():
-                prev_token_list = named_enities_dict[token_dict_with_object_ids[token]]['tokens_list']
+def __merge(object_dict, span_dict, tokens):
+    """
+    :param object_dict:
+    :param span_dict:
+    :return:
+    """
+    ne_dict = __get_dict_of_nes(object_dict, span_dict)
+    return __clean(ne_dict, tokens)
 
 
-                if len(tokens_list) >= len(prev_token_list):
-                    named_enities_dict, token_dict_with_object_ids = __delete_previous_entity(named_enities_dict,
-                                                                                              token_dict_with_object_ids,
-                                                                                              token, prev_token_list)
-                    token_dict_with_object_ids[token] = object_id
+# ___________________________________________________________________________________
 
-                elif len(tokens_list) == len(prev_token_list) and tag == \
-                        named_enities_dict[token_dict_with_object_ids[token]]['tag']:
-                    named_enities_dict, token_dict_with_object_ids = __delete_previous_entity(named_enities_dict,
-                                                                                              token_dict_with_object_ids,
-                                                                                              token, prev_token_list)
+def __get_dict_of_nes(object_dict, span_dict):
+    """
+    :param object_dict:
+    :param span_dict:
+    :return:
+    """
+    ne_dict = collections.defaultdict(list)
 
-                    token_dict_with_object_ids[token] = object_id
-                    named_enities_dict[object_id] = {'tag': tag,
-                                                     'tokens_list':
-                                                         sorted(list(set.union(set(tokens_list),set(prev_token_list))))}
-                    break
+    for object in object_dict.items():
+        for span in span_dict.items():
+            if span[0] in object[1]['spans']:
+                ne_dict[(object[0], object[1]['tag'])].extend(span[1])
+    for ne in ne_dict:
+        ne_dict[ne] = sorted(list(set([int(i) for i in ne_dict[ne]])))
+    return ne_dict
 
-                elif len(tokens_list) == len(prev_token_list) and tag != \
-                        named_enities_dict[token_dict_with_object_ids[token]]['tag']:
-                    print('Error in object intersection')
-                    print(tokens_list)
-                    print(named_enities_dict[token_dict_with_object_ids[token]]['tokens_list'])
-                    raise ValueError
-                else:
-                    break
-            else:
-                token_dict_with_object_ids[token] = object_id
 
+# ___________________________________________________________________________________
+
+def __clean(ne_dict, tokens):
+    """
+    :param ne_dict:
+    :param tokenslist:
+    :return:
+    """
+    sorted_nes = sorted(ne_dict.items(), key=__sort_by_tokens)
+    start_ne = sorted_nes[0]
+    result_nes = {}
+    for ne in sorted_nes:
+        if __intersect(start_ne[1], ne[1]):
+            result_nes[start_ne[0][0]] = {'tokens_list': __check_order([str(i) for i in start_ne[1]], tokens),
+                                          'tag': start_ne[0][1]}
+            start_ne = ne
         else:
-            named_enities_dict[object_id] = {'tag': tag, 'tokens_list': tokens_list}
-    return named_enities_dict
+            result_tokens_list = __check_normal_form(start_ne[1], ne[1])
+            start_ne = (start_ne[0], result_tokens_list)
+    return result_nes
 
-def __delete_previous_entity(named_enities_dict, token_dict_with_object_ids, token, prev_token_list):
-    named_enities_dict.pop(token_dict_with_object_ids[token])
-    for t in prev_token_list:
-        token_dict_with_object_ids.pop(t)
-    return named_enities_dict, token_dict_with_object_ids
 
-def __get_all_tokens_for_spans(span_dict, span_list):
-    common_list = []
-    for span in span_list:
-        common_list.extend(span_dict[span])
-    return sorted(list(set(common_list)))
+def __sort_by_tokens(tokens):
+    ids_as_int = [int(id) for id in tokens[1]]
+    return (min(ids_as_int), -max(ids_as_int))
+
+
+def __intersect(start_ne, current_ne):
+    intersection = set.intersection(set(start_ne), set(current_ne))
+    return intersection == set()
+
+
+def __check_order(list_of_tokens, all_tokens):
+    result = []
+    for token in list_of_tokens:
+        if token in all_tokens:
+            result.append((token, all_tokens.index(token)))
+    result = sorted(result, key=__sort_by_id)
+    return [r[0] for r in result]
+
+
+def __sort_by_id(result_tuple):
+    return result_tuple[1]
+
+
+def __check_normal_form(start_ne, ne):
+    all_tokens = sorted(set.union(set(start_ne), set(ne)))
+    return list(range(int(all_tokens[0]), int(all_tokens[-1]) + 1))
