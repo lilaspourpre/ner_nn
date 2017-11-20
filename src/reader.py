@@ -196,12 +196,13 @@ def __get_dict_of_nes(object_dict, span_dict):
     :param span_dict:
     :return:
     """
-    ne_dict = collections.defaultdict(list)
+    ne_dict = collections.defaultdict(list) # XXX why not use set instead of list?
 
+    # XXX don't use object[0] and object[1]. Just use normal names in for ... in ... 
     for object in object_dict.items():
-        for span in span_dict.items():
+        for span in span_dict.items(): # XXX iterating through ALL spans, but actually needed id's are already known.
             if span[0] in object[1]['spans']:
-                ne_dict[(object[0], object[1]['tag'])].extend(span[1])
+                ne_dict[(object[0], object[1]['tag'])].extend(span[1]) # convert to ints - you'll need them later
     for ne in ne_dict:
         ne_dict[ne] = sorted(list(set([int(i) for i in ne_dict[ne]])))
     return ne_dict
@@ -216,13 +217,15 @@ def __clean(ne_dict, tokens):
     :return:
     """
     sorted_nes = sorted(ne_dict.items(), key=__sort_by_tokens)
-    start_ne = sorted_nes[0]
+    start_ne = sorted_nes[0] # XXX actually before this checking for non-emptiness is required
     result_nes = {}
     for ne in sorted_nes:
         if __intersect(start_ne[1], ne[1]):
+            # XXX it seems you're not dealing with lost tokens (when token id is not specified among named entity tokens)
+            # XXX this probably works only if there was an intersecting token before
             result_nes[start_ne[0][0]] = {'tokens_list': __check_order([str(i) for i in start_ne[1]], tokens),
                                           'tag': start_ne[0][1]}
-            start_ne = ne
+            start_ne = ne # XXX Oops. Last ne from sorted_nes seems to be just lost. 
         else:
             result_tokens_list = __check_normal_form(start_ne[1], ne[1])
             start_ne = (start_ne[0], result_tokens_list)
@@ -234,7 +237,7 @@ def __sort_by_tokens(tokens):
     return (min(ids_as_int), -max(ids_as_int))
 
 
-def __intersect(start_ne, current_ne):
+def __intersect(start_ne, current_ne): # XXX actually this function checks *not intersect*
     intersection = set.intersection(set(start_ne), set(current_ne))
     return intersection == set()
 
@@ -242,9 +245,10 @@ def __intersect(start_ne, current_ne):
 def __check_order(list_of_tokens, all_tokens):
     result = []
     for token in list_of_tokens:
+        # XXX double linear search!!! "token in all_tokens" and "all_tokens.index(token)"!!! 
         if token in all_tokens:
             result.append((token, all_tokens.index(token)))
-    result = sorted(result, key=__sort_by_id)
+    result = sorted(result, key=__sort_by_id) # XXX that is actually sort_by_position
     return [r[0] for r in result]
 
 
@@ -254,4 +258,4 @@ def __sort_by_id(result_tuple):
 
 def __check_normal_form(start_ne, ne):
     all_tokens = sorted(set.union(set(start_ne), set(ne)))
-    return list(range(int(all_tokens[0]), int(all_tokens[-1]) + 1))
+    return list(range(int(all_tokens[0]), int(all_tokens[-1]) + 1)) # XXX we are converting to int all the time - why not do it just once at the beginning?
