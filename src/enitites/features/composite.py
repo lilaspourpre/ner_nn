@@ -2,7 +2,7 @@
 from src.enitites.features.abstract_feature import AbstractFeature
 
 class FeatureComposite(AbstractFeature):
-    def __init__(self, feature_list=[]):
+    def __init__(self, feature_list=()):
         super().__init__()
         self.feature_list = feature_list
 

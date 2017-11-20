@@ -5,7 +5,7 @@ from src.enitites.features.abstract_feature import AbstractFeature
 
 
 class MorphoFeature(AbstractFeature):
-    CASES = ['nomn', 'gent', 'datv', 'accs', 'ablt', 'loct', 'voct', 'gen2', 'acc2', 'loc2']
+    CASES = ('nomn', 'gent', 'datv', 'accs', 'ablt', 'loct', 'voct', 'gen2', 'acc2', 'loc2')
     
     def __init__(self, cases_to_detect=CASES):
         super().__init__()
