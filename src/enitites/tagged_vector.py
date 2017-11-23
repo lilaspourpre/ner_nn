@@ -13,4 +13,7 @@ class TaggedVector():
         return self.__tag
 
     def __repr__(self):
-        return "<" + self.__tag + "_" + str(self.__vector) + ">"
+        if self.__tag:
+            return "<" + self.__tag + "_" + str(self.__vector) + ">"
+        else:
+            return "<None_" +str(self.__vector) + ">"

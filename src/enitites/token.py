@@ -25,3 +25,6 @@ class Token:
 
     def __str__(self):
         return self.__text
+
+    def __repr__(self):
+        return "<<" + self.__id + "_" + self.__text + ">>"

@@ -13,4 +13,3 @@ class Document:
         for tagged_token in self.get_tagged_tokens():
             tokens.append(tagged_token.get_token())
         return tokens
-
