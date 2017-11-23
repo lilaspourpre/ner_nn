@@ -2,8 +2,6 @@
 import argparse
 import os
 import logging
-import codecs
-import csv
 from src import trainer
 from src import ne_creator
 from src.enitites.features.composite import FeatureComposite
@@ -49,9 +47,9 @@ def initiate_logger():
 def main():
     args = parse_arguments()
     trainer, feature = choose_model(args.algorythm, args.window)
-    nes = train_and_compute_nes_from(model_trainer=trainer, feature=feature, trainset_path=args.trainset_path,
-                                     testset_path=args.testset_path)
-    write_to_file(nes, args.output_path)
+    output_path = train_and_compute_nes_from(model_trainer=trainer, feature=feature, trainset_path=args.trainset_path,
+                               testset_path=args.testset_path, output_path=args.output_path)
+    print(output_path)
 
 
 # --------------------------------------------------------------------
@@ -66,7 +64,8 @@ def parse_arguments():
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-t", "--trainset_path", help="path to the trainset files directory")
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")
-    parser.add_argument("-o", "--output_path", help="path to the output files directory")
+    parser.add_argument("-o", "--output_path", help="path to the output files directory",
+                        default=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'output'))
 
     args = parser.parse_args()
     return args
@@ -97,23 +96,17 @@ def get_composite_feature(window):
     """
     list_of_features = [LengthFeature()]
     basic_features = [POSFeature(), CaseFeature(), MorphoFeature()]
-    offsets = compute_offsets(window)
     for feature in basic_features:
-        list_of_features.append(feature)
-        for offset in offsets:
+        for offset in range(-window, window + 1):
             list_of_features.append(ContextFeature(feature, offset))
     composite = FeatureComposite(list_of_features)
     logging.log(logging.INFO, repr(composite))
     return composite
 
-def compute_offsets(window):
-    result = list(range(1, window + 1))
-    result.extend(range(-window, 0))
-    return result
 
 # --------------------------------------------------------------------
 
-def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_path):
+def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_path, output_path):
     """
     :param method: method to train model
     :param trainset_path: path where the devset is
@@ -123,28 +116,7 @@ def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_pa
     logging.log(logging.INFO, "START OF GETTING NEs")
     model = trainer.train(model_trainer, feature, trainset_path)
     logging.log(logging.INFO, "MODEL " + repr(model) + " SUCCESSFULLY CREATED")
-    exit(0)
-    nes = ne_creator.compute_nes(testset_path, model)
-    return nes
-
-
-# --------------------------------------------------------------------
-
-def write_to_file(nes, path):
-    """
-    :param nes: nes to write
-    :param path: path where to write
-    :return: None
-    """
-    # TODO: to be reviewed
-    if not os.path.exists(path):
-        os.makedirs(path)
-    for file in nes:
-        logging.log(logging.INFO, 'Writing to ' + file)
-        with codecs.open(file + ".task1", 'a', encoding='utf-8') as f:
-            writer = csv.writer(f, delimiter=' ')
-            for ne in file:
-                writer.writerow(ne)
+    return ne_creator.compute_nes(testset_path, feature, model, output_path)
 
 
 if __name__ == '__main__':
