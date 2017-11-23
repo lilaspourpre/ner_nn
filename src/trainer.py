@@ -15,7 +15,7 @@ def train(model_trainer, feature, path="C:\\Users\\admin\\PycharmProjects\\ner_s
     """
     logging.log(logging.INFO, "START OF Model Training")
     documents = get_documents_from(path)
-    logging.log(logging.INFO, "SUCCESSFULLY CREATED: list of document classes")
+    logging.log(logging.INFO,'SUCCESSFULLY CREATED: document for training')
     list_of_tagged_vectors = create_list_of_tagged_vectors(documents, feature)
     return model_trainer.train(list_of_tagged_vectors)
 
