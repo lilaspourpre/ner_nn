@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from collections import Counter
+from sortedcontainers import SortedDict
 from src.machine_learning.i_model_trainer import ModelTrainer
 from src.enitites.models.random_model import RandomModel
 
@@ -8,7 +9,6 @@ from src.enitites.models.random_model import RandomModel
 class RandomModelTrainer(ModelTrainer):
     def __init__(self):
         super().__init__()
-        self.NUMBER_OF_SYMBOLS_AFTER_COMMA = 10
 
     def __find_probabilities(self, list_of_candidates):
         """
@@ -18,23 +18,19 @@ class RandomModelTrainer(ModelTrainer):
         dict_of_candidates_with_counted_tags = Counter(list_of_candidates)
         prev_weight = 0
         counter = 0
-        dict_of_distributed_probabilities = {}
+        dict_of_distributed_probabilities = SortedDict()
 
         for tag, current_count in dict_of_candidates_with_counted_tags.items():
-            # XXX what's the use of round here?
-            # YYY current weight for creating list with the range (two numbers), then we compare the randomly generated number with this range
-            # ZZZ I understand the code. I just can't understand the invocation of round(...)
-            # In other words, why can't i simply write:
-            # current_weight = current_count / len(list_of_candidates)
-            current_weight = round(current_count / len(list_of_candidates), self.NUMBER_OF_SYMBOLS_AFTER_COMMA)
+            current_weight = current_count / len(list_of_candidates)
             if counter == 0:
-                dict_of_distributed_probabilities[tag] = [-0.1, current_weight]
+                dict_of_distributed_probabilities[current_weight] = tag
             elif counter == len(dict_of_candidates_with_counted_tags) - 1:
-                dict_of_distributed_probabilities[tag] = [prev_weight, 1]
+                dict_of_distributed_probabilities[1] = tag
             else:
-                dict_of_distributed_probabilities[tag] = [prev_weight, prev_weight + current_weight]
+                dict_of_distributed_probabilities[prev_weight + current_weight] = tag
             prev_weight += current_weight
             counter += 1
+        print(dict_of_distributed_probabilities)
         return dict_of_distributed_probabilities
 
     def train(self, tagged_vectors):
