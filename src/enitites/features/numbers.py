@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from src.enitites.features.abstract_feature import AbstractFeature
 
-class CaseFeature(AbstractFeature):
+class NumbersInTokenFeature(AbstractFeature):
     def __init__(self):
         super().__init__()
-        self.predicates = [str.isupper, str.islower, str.istitle]
+        self.predicates = [str.isalpha, str.isdigit, str.isalnum]
 
     def compute_vector_for(self, token, tokenlist):
         result = []
@@ -16,4 +16,4 @@ class CaseFeature(AbstractFeature):
         return len(self.predicates)
 
     def __repr__(self):
-        return 'case'
+        return 'numbers_in_token'
