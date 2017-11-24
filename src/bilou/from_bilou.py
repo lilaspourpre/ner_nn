@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# XXX this code should be able to deal with all possible and impossible combinations.
+# XXX now only "happy path" is considered
 def untag(list_of_tags, list_of_tokens):
     """
     :param list_of_tags:
@@ -15,6 +17,8 @@ def untag(list_of_tags, list_of_tokens):
             current_tag = list_of_tags[index]
             current_token = list_of_tokens[index]
 
+            # XXX need to correctly deal with all 'possible' combinations.
+            # XXX for now some of them are ignored: O O I..., O O L...
             if ne_tag == None and current_tag.startswith('U'):
                 dict_of_final_ne[tuple([current_token])] = current_tag[1:]
 
@@ -22,6 +26,7 @@ def untag(list_of_tags, list_of_tokens):
                 ne_tag = current_tag[1:]
                 ne_words.append(current_token)
 
+            # XXX more weird combinations: BPer BLoc, 
             elif ne_tag is not None and 'O' != current_tag:
                 ne_words.append(current_token)
                 if ne_tag in current_tag and current_tag.startswith('L'):
@@ -48,7 +53,7 @@ def __to_output_format(dict_nes):
 
     for tokens_tuple, tag in dict_nes.items():
         position = tokens_tuple[0].get_position()
-        length = sum([len(token.get_text())+1 for token in tokens_tuple])-1
+        length = sum([len(token.get_text())+1 for token in tokens_tuple])-1 # XXX i don't think this is correct way. There will be problems in case of several spaces between tokens
         list_of_results_for_output.append([tag, position, length])
 
     return list_of_results_for_output

@@ -54,6 +54,6 @@ def __write_to_file(nes, filename, path):
         os.makedirs(path)
 
     for ne in nes:
-        with codecs.open(os.path.join(path, os.path.basename(filename + ".task1")), 'a', encoding='utf-8') as f:
+        with codecs.open(os.path.join(path, os.path.basename(filename + ".task1")), 'a', encoding='utf-8') as f: # XXX why mode is 'a'?
             writer = csv.writer(f, delimiter=' ')
             writer.writerow(ne)
