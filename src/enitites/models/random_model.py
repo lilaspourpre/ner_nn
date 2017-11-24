@@ -1,24 +1,18 @@
 # -*- coding: utf-8 -*-
 import random
-import copy
+from bisect import bisect_right
 from src.enitites.models.model import Model
 
 
 class RandomModel(Model):
-    def __init__(self, dict_of_distributed_probabilities):
+    def __init__(self, list_of_distributed_probabilities):
         super().__init__()
-        self.dict_of_distributed_probabilities = dict_of_distributed_probabilities
+        self.list_of_distributed_probabilities = list_of_distributed_probabilities
 
     def predict(self, vector):
-        random_number = random.uniform(0, 1)  # gives random number from 0 to 1 # XXX excess comment
-        # XXX code below is XXX. Pls, read list of SortedDict methods carefully instead of building yet another bicycle
-        # XXX PS still the idea of using SortedDict is normal
-        new_dict = copy.deepcopy(self.dict_of_distributed_probabilities)
-        new_dict[random_number] = None
-        new_index = new_dict.index(random_number)
-        key = self.dict_of_distributed_probabilities.iloc[new_index]
-        return self.dict_of_distributed_probabilities[key]
-
+        random_number = random.uniform(0, 1)
+        new_index = bisect_right(self.list_of_distributed_probabilities, (random_number, ''))
+        return self.list_of_distributed_probabilities[new_index][1]
 
     def __repr__(self):
         return 'random_model'
