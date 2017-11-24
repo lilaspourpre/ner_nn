@@ -10,7 +10,9 @@ class RandomModel(Model):
         self.dict_of_distributed_probabilities = dict_of_distributed_probabilities
 
     def predict(self, vector):
-        random_number = random.uniform(0, 1)  # gives random number from 0 to 1
+        random_number = random.uniform(0, 1)  # gives random number from 0 to 1 # XXX excess comment
+        # XXX code below is XXX. Pls, read list of SortedDict methods carefully instead of building yet another bicycle
+        # XXX PS still the idea of using SortedDict is normal
         new_dict = copy.deepcopy(self.dict_of_distributed_probabilities)
         new_dict[random_number] = None
         new_index = new_dict.index(random_number)

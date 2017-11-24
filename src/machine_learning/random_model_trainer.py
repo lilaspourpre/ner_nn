@@ -22,9 +22,9 @@ class RandomModelTrainer(ModelTrainer):
 
         for tag, current_count in dict_of_candidates_with_counted_tags.items():
             current_weight = current_count / len(list_of_candidates)
-            if counter == 0:
+            if counter == 0: # XXX how does this branch differ from else?
                 dict_of_distributed_probabilities[current_weight] = tag
-            elif counter == len(dict_of_candidates_with_counted_tags) - 1:
+            elif counter == len(dict_of_candidates_with_counted_tags) - 1: # XXX I'm not sure, this branch is needed, as well
                 dict_of_distributed_probabilities[1] = tag
             else:
                 dict_of_distributed_probabilities[prev_weight + current_weight] = tag

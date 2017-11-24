@@ -30,8 +30,8 @@ def create_dict_of_vectors_for_each_doc(documents, feature):
     :param feature:
     :return:
     """
-    list_of_tagged_vectors_for_each_doc = {}
-    for document, document_values in documents.items():
+    list_of_tagged_vectors_for_each_doc = {} # XXX it's not a list
+    for document, document_values in documents.items(): # XXX doc_id, document. Is document_values a normal name?
         vectors_in_document = create_list_of_tagged_vectors({document:document_values}, feature)
         list_of_tagged_vectors_for_each_doc[document] = vectors_in_document
     return list_of_tagged_vectors_for_each_doc

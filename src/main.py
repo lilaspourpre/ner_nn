@@ -60,7 +60,7 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-a", "--algorythm", help='"majorclass" or "random" options are available')
+    parser.add_argument("-a", "--algorythm", help='"majorclass" or "random" options are available', required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-t", "--trainset_path", help="path to the trainset files directory")
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")

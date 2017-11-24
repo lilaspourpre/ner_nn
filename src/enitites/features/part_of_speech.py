@@ -5,7 +5,7 @@ import pymorphy2
 from src.enitites.features.abstract_feature import AbstractFeature
 
 class POSFeature(AbstractFeature):
-    TAGS = ['NOUN', 'VERB', 'ADJ', 'PREP', 'PNCT', 'CONJ']
+    TAGS = ('NOUN', 'VERB', 'ADJ', 'PREP', 'PNCT', 'CONJ')
 
     def __init__(self, pos_tags=TAGS):
         super().__init__()

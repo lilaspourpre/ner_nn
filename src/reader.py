@@ -14,6 +14,8 @@ from src.bilou import to_bilou
 #       Main function
 # ********************************************************************
 
+# XXX this idea with "travelling" flag is awful. Why not create two main functions,
+# XXX which will call get_documents_from, parameterized with another document creation one (pass function as parameter)  
 def get_documents_from(path, search_tags=True):
     """
     Main function for getting documents
@@ -204,6 +206,7 @@ def __get_dict_of_nes(object_dict, span_dict):
     ne_dict = collections.defaultdict(set)
     for obj_id, obj_values in object_dict.items():
         for span in obj_values['spans']:
+            # XXX why not just ne_dict[(obj_id, obj_values['tag'])].update(span_dict[span])
             for token in span_dict[span]:
                 ne_dict[(obj_id, obj_values['tag'])].add(token)
     for ne in ne_dict:
