@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
-
 
 def untag(list_of_tags, list_of_tokens):
     """
@@ -36,7 +34,6 @@ def untag(list_of_tags, list_of_tokens):
                 ne_tag = None
                 ne_words = []
 
-        logging.log(logging.INFO, dict_of_final_ne)
         return __to_output_format(dict_of_final_ne)
     else:
         raise ValueError('lengths are not equal')

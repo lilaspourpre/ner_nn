@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 from collections import Counter
 from src.machine_learning.i_model_trainer import ModelTrainer
 from src.enitites.models.majorclass_model import MajorClassModel

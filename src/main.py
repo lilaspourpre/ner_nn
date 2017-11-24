@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
-import logging
 from src import trainer
 from src import ne_creator
 from src.enitites.features.composite import FeatureComposite
@@ -15,28 +14,6 @@ from src.machine_learning.random_model_trainer import RandomModelTrainer
 from src.machine_learning.svm_model_trainer import SvmModelTrainer
 from datetime import datetime
 
-
-# --------------------------------------------------------------------
-#       Logger
-# --------------------------------------------------------------------
-
-def initiate_logger():
-    """
-    Initiate logger
-    """
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler()
-    dir_to_write = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
-    if not os.path.exists(dir_to_write):
-        os.mkdir(dir_to_write)
-    file_to_write = os.path.join(dir_to_write, datetime.now().strftime("%Y-%m-%d %H-%M-%S") + '.txt')
-    filehandler = logging.FileHandler(filename=file_to_write)
-    formatter = logging.Formatter("%(levelname)s: %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    filehandler.setFormatter(formatter)
-    logger.addHandler(filehandler)
 
 
 # ********************************************************************
@@ -60,7 +37,7 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-a", "--algorythm", help='"majorclass" or "random" options are available', required=True)
+    parser.add_argument("-a", "--algorythm", help='"majorclass", "svm" or "random" options are available', required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-t", "--trainset_path", help="path to the trainset files directory")
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")
@@ -100,7 +77,6 @@ def get_composite_feature(window):
         for offset in range(-window, window + 1):
             list_of_features.append(ContextFeature(feature, offset))
     composite = FeatureComposite(list_of_features)
-    logging.log(logging.INFO, repr(composite))
     return composite
 
 
@@ -113,12 +89,9 @@ def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_pa
     :param testset_path: path where the testset is
     :return: named entities
     """
-    logging.log(logging.INFO, "START OF GETTING NEs")
     model = trainer.train(model_trainer, feature, trainset_path)
-    logging.log(logging.INFO, "MODEL " + repr(model) + " SUCCESSFULLY CREATED")
     return ne_creator.compute_nes(testset_path, feature, model, output_path)
 
 
 if __name__ == '__main__':
-    initiate_logger()
     main()

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 from src.enitites.tagged_vector import TaggedVector
 
 
@@ -30,11 +29,11 @@ def create_dict_of_vectors_for_each_doc(documents, feature):
     :param feature:
     :return:
     """
-    list_of_tagged_vectors_for_each_doc = {} # XXX it's not a list
-    for document, document_values in documents.items(): # XXX doc_id, document. Is document_values a normal name?
-        vectors_in_document = create_list_of_tagged_vectors({document:document_values}, feature)
-        list_of_tagged_vectors_for_each_doc[document] = vectors_in_document
-    return list_of_tagged_vectors_for_each_doc
+    dict_of_tagged_vectors_for_each_doc = {}
+    for doc_id, document in documents.items():
+        vectors_in_document = create_list_of_tagged_vectors({doc_id:document}, feature)
+        dict_of_tagged_vectors_for_each_doc[doc_id] = vectors_in_document
+    return dict_of_tagged_vectors_for_each_doc
 
 
 # --------------------------------------------------------------------
