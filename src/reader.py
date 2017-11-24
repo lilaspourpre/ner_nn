@@ -2,7 +2,6 @@
 import collections
 import os
 import codecs
-import logging
 from collections import OrderedDict
 from src.enitites.document import Document
 from src.enitites.tagged_token import TaggedToken
@@ -11,12 +10,26 @@ from src.bilou import to_bilou
 
 
 # ********************************************************************
-#       Main function
+#       Main functions
 # ********************************************************************
 
-# XXX this idea with "travelling" flag is awful. Why not create two main functions,
-# XXX which will call get_documents_from, parameterized with another document creation one (pass function as parameter)  
-def get_documents_from(path, search_tags=True):
+
+def get_documents_with_tags_from(path):
+    get_tagged_tokens_from = __get_tagged_tokens_from
+    return __get_documents_from(path, get_tagged_tokens_from)
+
+
+def get_documents_without_tags_from(path):
+    get_tagged_tokens_from = __get_not_tagged_tokens_from
+    return __get_documents_from(path, get_tagged_tokens_from)
+
+
+
+# -------------------------------------------------------------------
+#       Common private function for getting documents
+# -------------------------------------------------------------------
+
+def __get_documents_from(path, get_tagged_tokens_from):
     """
     Main function for getting documents
     :param path: path to the devset
@@ -25,7 +38,7 @@ def get_documents_from(path, search_tags=True):
     dict_of_documents = {}
     filenames = __get_filenames_from(path)
     for filename in filenames:
-        document = __create_document_from(filename, search_tags)
+        document = __create_document_from(filename, get_tagged_tokens_from)
         dict_of_documents[filename] = document
     return dict_of_documents
 
@@ -44,7 +57,6 @@ def __get_filenames_from(path):
         for file in files:
             if file.endswith('.tokens'):
                 list_of_filenames.append(os.path.join(root, os.path.splitext(file)[0]))  # XXX splitext
-    logging.log(logging.INFO, "Successfully got filenames from path")
     return list_of_filenames
 
 
@@ -52,13 +64,13 @@ def __get_filenames_from(path):
 #       Getting documents
 # -------------------------------------------------------------------
 
-def __create_document_from(filename, search_tags):
+def __create_document_from(filename, get_tagged_tokens_from):
     """
     :param filename: which document to parse (name without extension)
     :return: document class
     """
     tokens = __get_tokens_from(filename)
-    tagged_tokens = __get_tagged_tokens_from(filename, tokens, search_tags)
+    tagged_tokens = get_tagged_tokens_from(filename, tokens)
     document = Document(tagged_tokens)
     return document
 
@@ -107,21 +119,29 @@ def __create_token_from(row):
 #       Getting tagged tokens
 #
 
-def __get_tagged_tokens_from(filename, tokens, search_tags):
+def __get_tagged_tokens_from(filename, tokens):
     """
     :param filename: filename without extension (.spans and .objects) to parse
     :param tokens: tokens that need to be tagged
     :return: list of tagged tokens classes
     """
-    if search_tags:
-        span_dict = __spanid_to_tokenids(filename + '.spans',
-                                         [token.get_id() for token in
-                                          tokens])  # XXX span_to_tokens or spanid_to_tokenids
-        object_dict = __to_dict_of_objects(filename + '.objects')
-        dict_of_nes = __merge(object_dict, span_dict, tokens)
-        return to_bilou.get_tagged_tokens_from(dict_of_nes, tokens)
-    else:
-        return [TaggedToken(None, tokens[i]) for i in range(len(tokens))]
+    span_dict = __spanid_to_tokenids(filename + '.spans',[token.get_id() for token in tokens])
+    object_dict = __to_dict_of_objects(filename + '.objects')
+    dict_of_nes = __merge(object_dict, span_dict, tokens)
+    return to_bilou.get_tagged_tokens_from(dict_of_nes, tokens)
+
+
+#
+#       Getting not tagged tokens
+#
+
+def __get_not_tagged_tokens_from(filename, tokens):
+    """
+    :param filename:
+    :param tokens:
+    :return:
+    """
+    return [TaggedToken(None, tokens[i]) for i in range(len(tokens))]
 
 
 # ___________________________________________________________________________________
@@ -206,9 +226,7 @@ def __get_dict_of_nes(object_dict, span_dict):
     ne_dict = collections.defaultdict(set)
     for obj_id, obj_values in object_dict.items():
         for span in obj_values['spans']:
-            # XXX why not just ne_dict[(obj_id, obj_values['tag'])].update(span_dict[span])
-            for token in span_dict[span]:
-                ne_dict[(obj_id, obj_values['tag'])].add(token)
+            ne_dict[(obj_id, obj_values['tag'])].update(span_dict[span])
     for ne in ne_dict:
         ne_dict[ne] = sorted(list(set([int(i) for i in ne_dict[ne]])))
     return ne_dict
@@ -261,7 +279,6 @@ def __find_all_range_of_tokens(tokens):
     if (tokens[-1] - tokens[0] - len(tokens)) < 5:
         return list(range(tokens[0], tokens[-1] + 1))
     else:
-        logging.log(logging.WARNING, 'Difference between ids is too big : '+str(tokens))
         return tokens
 
 

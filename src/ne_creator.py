@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import logging
 import os
 import codecs
 import csv
 from datetime import datetime
 
 from src.bilou import from_bilou
-from src.reader import get_documents_from
+from src.reader import get_documents_without_tags_from
 from src.vector_creator import create_dict_of_vectors_for_each_doc
 
 
@@ -22,9 +21,7 @@ def compute_nes(testset_path, feature, model, output_path):
     :return:
     """
     output_path = os.path.join(output_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-    logging.log(logging.INFO, "START of testing model")
-    documents = get_documents_from(testset_path, search_tags=False)
-    logging.log(logging.INFO, 'SUCCESSFULLY CREATED: documents for testing')
+    documents = get_documents_without_tags_from(testset_path)
     dict_of_docs_with_vectors = create_dict_of_vectors_for_each_doc(documents, feature)
 
     for document_name, untagged_vectors_list in dict_of_docs_with_vectors.items():
