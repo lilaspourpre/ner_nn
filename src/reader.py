@@ -241,6 +241,9 @@ def __clean(ne_dict, tokens):
     :return:
     """
     sorted_nes = sorted(ne_dict.items(), key=__sort_by_tokens)
+    dict_of_texts_by_id = OrderedDict()
+    for i in range(len(tokens)):
+        dict_of_texts_by_id[tokens[i].get_id()] = (tokens[i].get_text(), i)
     result_nes = {}
     if len(sorted_nes) != 0:
         start_ne = sorted_nes[0]
@@ -254,7 +257,7 @@ def __clean(ne_dict, tokens):
                 result_tokens_list = __check_normal_form(start_ne[1], ne[1])
                 start_ne = (start_ne[0], result_tokens_list)
         result_nes[start_ne[0][0]] = {
-            'tokens_list': __check_order(start_ne[1], tokens),
+            'tokens_list': __check_order(start_ne[1], dict_of_texts_by_id),
             'tag': start_ne[0][1]}
     return result_nes
 
@@ -282,7 +285,7 @@ def __find_all_range_of_tokens(tokens):
         return tokens
 
 
-def __check_order(list_of_tokens, all_tokens):
+def __check_order(list_of_tokens, dict_of_texts_by_id):
     """
     :param list_of_tokens:
     :param all_tokens:
@@ -290,17 +293,12 @@ def __check_order(list_of_tokens, all_tokens):
     """
     list_of_tokens = [str(i) for i in __find_all_range_of_tokens(list_of_tokens)]
     result = []
-    dict_of_text_by_id = OrderedDict() # XXX why *ordered* dict? You need it created only once, but recreate it for each named entity!!!
-    for i in range(len(all_tokens)):
-        dict_of_text_by_id[all_tokens[i].get_id()] = (all_tokens[i].get_text(), i)
     for token in list_of_tokens:
-        try: # XXX bad idiom. Check for key presence
-            index_in_all = dict_of_text_by_id[token][1]
+        if token in dict_of_texts_by_id:
+            index_in_all = dict_of_texts_by_id[token][1]
             result.append((token, index_in_all))
-        except KeyError:
-            pass
     result = sorted(result, key=__sort_by_position)
-    result = add_quotation_marks(result, dict_of_text_by_id)
+    result = add_quotation_marks(result, dict_of_texts_by_id)
     return [r[0] for r in result]
 
 
@@ -311,17 +309,17 @@ def add_quotation_marks(result, dict_of_text_by_id):
     :return:
     """
     result_tokens_texts = [dict_of_text_by_id[token[0]][0] for token in result]
-    prev_id = [r[1] for r in result][0] - 1 # XXX result[0][1] - 1 ??? By the way, that is not id; that is position/index
-    next_id = [r[1] for r in result][-1] + 1 # XXX result[-1][1] + 1 ???
+    prev_pos = [r[1] for r in result][0] - 1 # XXX result[0][1] - 1 ???
+    next_pos = [r[1] for r in result][-1] + 1 # XXX result[-1][1] + 1 ???
 
     # XXX inefficient!!! Why not just pass all_tokens from outer method here?
-    if prev_id >= 0 and list(dict_of_text_by_id.values())[prev_id][0] == '«' \
+    if prev_pos >= 0 and list(dict_of_text_by_id.values())[prev_pos][0] == '«' \
             and '»' in result_tokens_texts and '«' not in result_tokens_texts:
-        result = [(list(dict_of_text_by_id.keys())[prev_id], prev_id)] + result
+        result = [(list(dict_of_text_by_id.keys())[prev_pos], prev_pos)] + result
 
-    if next_id < len(dict_of_text_by_id) and list(dict_of_text_by_id.values())[next_id][0] == '»' \
+    if next_pos < len(dict_of_text_by_id) and list(dict_of_text_by_id.values())[next_pos][0] == '»' \
             and '«' in result_tokens_texts and '»' not in result_tokens_texts:
-        result = result + [(list(dict_of_text_by_id.keys())[next_id], next_id)]
+        result = result + [(list(dict_of_text_by_id.keys())[next_pos], next_pos)]
 
     return result
 
