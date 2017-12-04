@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.enitites.tagged_vector import TaggedVector
+from enitites.tagged_vector import TaggedVector
 
 
 # ********************************************************************
@@ -15,9 +15,8 @@ def create_list_of_tagged_vectors(documents, feature):
     list_of_tagged_vectors = []
 
     for document in documents.values():
-        lists_of_tokens = document.get_tokens()
         for taggedtoken in document.get_tagged_tokens():
-            list_of_tagged_vectors.append(__create_tagged_vector_for(taggedtoken, lists_of_tokens, feature))
+            list_of_tagged_vectors.append(__create_tagged_vector_for(taggedtoken, document, feature))
     return list_of_tagged_vectors
 
 
@@ -38,9 +37,9 @@ def create_dict_of_vectors_for_each_doc(documents, feature):
 
 # --------------------------------------------------------------------
 
-def __create_tagged_vector_for(taggedtoken, tokenslist, feature):
+def __create_tagged_vector_for(taggedtoken, document, feature):
     tag = taggedtoken.get_tag()
-    vector = feature.compute_vector_for(taggedtoken.get_token(), tokenslist)
+    vector = feature.compute_vector_for(taggedtoken.get_token(), document)
     return TaggedVector(vector=vector, tag=tag)
 
 

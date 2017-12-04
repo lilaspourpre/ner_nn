@@ -1,2 +1,8 @@
 # -*- coding: utf-8 -*-
-from src.enitites.features.abstract_feature import AbstractFeature
+from enitites.features.check_in_list_feature import CheckInListFeature
+
+class PunctFeature(CheckInListFeature):
+    SIGNS = (',', '.', '?', '!', ':', '-', '—', '«', '»')
+
+    def __init__(self, punct=SIGNS):
+        super().__init__('punctuation', punct)

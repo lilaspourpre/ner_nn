@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 from bisect import bisect_right
-from src.enitites.models.model import Model
+from enitites.models.model import Model
 
 
 class RandomModel(Model):

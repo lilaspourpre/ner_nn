@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from src.enitites.models.model import Model
+from enitites.models.model import Model
 
 class SvmModel(Model):
     def __init__(self, svm):

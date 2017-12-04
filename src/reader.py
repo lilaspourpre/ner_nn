@@ -3,10 +3,10 @@ import collections
 import os
 import codecs
 from collections import OrderedDict
-from src.enitites.document import Document
-from src.enitites.tagged_token import TaggedToken
-from src.enitites.token import Token
-from src.bilou import to_bilou
+from enitites.document import Document
+from enitites.tagged_token import TaggedToken
+from enitites.token import Token
+from bilou import to_bilou
 
 
 # ********************************************************************
@@ -241,23 +241,23 @@ def __clean(ne_dict, tokens):
     :return:
     """
     sorted_nes = sorted(ne_dict.items(), key=__sort_by_tokens)
-    dict_of_texts_by_id = OrderedDict()
+    dict_of_tokens_by_id = {}
     for i in range(len(tokens)):
-        dict_of_texts_by_id[tokens[i].get_id()] = (tokens[i].get_text(), i)
+        dict_of_tokens_by_id[tokens[i].get_id()] = i
     result_nes = {}
     if len(sorted_nes) != 0:
         start_ne = sorted_nes[0]
         for ne in sorted_nes:
             if __not_intersect(start_ne[1], ne[1]):
                 result_nes[start_ne[0][0]] = {
-                    'tokens_list': __check_order(start_ne[1], tokens),
+                    'tokens_list': __check_order(start_ne[1], dict_of_tokens_by_id, tokens),
                     'tag': start_ne[0][1]}
                 start_ne = ne
             else:
                 result_tokens_list = __check_normal_form(start_ne[1], ne[1])
                 start_ne = (start_ne[0], result_tokens_list)
         result_nes[start_ne[0][0]] = {
-            'tokens_list': __check_order(start_ne[1], dict_of_texts_by_id),
+            'tokens_list': __check_order(start_ne[1], dict_of_tokens_by_id, tokens),
             'tag': start_ne[0][1]}
     return result_nes
 
@@ -285,7 +285,7 @@ def __find_all_range_of_tokens(tokens):
         return tokens
 
 
-def __check_order(list_of_tokens, dict_of_texts_by_id):
+def __check_order(list_of_tokens, dict_of_tokens_by_id, tokens):
     """
     :param list_of_tokens:
     :param all_tokens:
@@ -294,32 +294,30 @@ def __check_order(list_of_tokens, dict_of_texts_by_id):
     list_of_tokens = [str(i) for i in __find_all_range_of_tokens(list_of_tokens)]
     result = []
     for token in list_of_tokens:
-        if token in dict_of_texts_by_id:
-            index_in_all = dict_of_texts_by_id[token][1]
-            result.append((token, index_in_all))
+        if token in dict_of_tokens_by_id:
+            result.append((token, dict_of_tokens_by_id[token]))
     result = sorted(result, key=__sort_by_position)
-    result = add_quotation_marks(result, dict_of_texts_by_id)
+    result = add_quotation_marks(result, tokens)
     return [r[0] for r in result]
 
 
-def add_quotation_marks(result, dict_of_text_by_id):
+def add_quotation_marks(result, tokens):
     """
     :param result:
     :param dict_of_text_by_id:
     :return:
     """
-    result_tokens_texts = [dict_of_text_by_id[token[0]][0] for token in result]
-    prev_pos = [r[1] for r in result][0] - 1 # XXX result[0][1] - 1 ???
-    next_pos = [r[1] for r in result][-1] + 1 # XXX result[-1][1] + 1 ???
+    result_tokens_texts = [tokens[token[1]].get_text() for token in result]
+    prev_pos = result[0][1] - 1
+    next_pos = result[-1][1] + 1
 
-    # XXX inefficient!!! Why not just pass all_tokens from outer method here?
-    if prev_pos >= 0 and list(dict_of_text_by_id.values())[prev_pos][0] == '«' \
+    if prev_pos >= 0 and tokens[prev_pos].get_text() == '«' \
             and '»' in result_tokens_texts and '«' not in result_tokens_texts:
-        result = [(list(dict_of_text_by_id.keys())[prev_pos], prev_pos)] + result
+        result = [(tokens[prev_pos].get_id(), prev_pos)] + result
 
-    if next_pos < len(dict_of_text_by_id) and list(dict_of_text_by_id.values())[next_pos][0] == '»' \
+    if next_pos < len(tokens) and tokens[next_pos].get_text() == '»' \
             and '«' in result_tokens_texts and '»' not in result_tokens_texts:
-        result = result + [(list(dict_of_text_by_id.keys())[next_pos], next_pos)]
+        result = result + [(tokens[next_pos].get_id(), next_pos)]
 
     return result
 

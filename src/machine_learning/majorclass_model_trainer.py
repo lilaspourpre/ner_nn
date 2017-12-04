@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import Counter
-from src.machine_learning.i_model_trainer import ModelTrainer
-from src.enitites.models.majorclass_model import MajorClassModel
+from machine_learning.i_model_trainer import ModelTrainer
+from enitites.models.majorclass_model import MajorClassModel
 
 
 class MajorClassModelTrainer(ModelTrainer):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.enitites.models.model import Model
+from enitites.models.model import Model
 
 
 class MajorClassModel(Model):

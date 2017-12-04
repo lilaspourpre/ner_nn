@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.enitites.tagged_token import TaggedToken
+from enitites.tagged_token import TaggedToken
 
 
 def get_tagged_tokens_from(dict_of_nes, token_list):

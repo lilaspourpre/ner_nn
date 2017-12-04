@@ -1,18 +1,32 @@
 # -*- coding: utf-8 -*-
 import argparse
+import datetime
 import os
-from src import trainer
-from src import ne_creator
-from src.enitites.features.composite import FeatureComposite
-from src.enitites.features.part_of_speech import POSFeature
-from src.enitites.features.length import LengthFeature
-from src.enitites.features.case import CaseFeature
-from src.enitites.features.morpho_case import MorphoFeature
-from src.enitites.features.context_feature import ContextFeature
-from src.machine_learning.majorclass_model_trainer import MajorClassModelTrainer
-from src.machine_learning.random_model_trainer import RandomModelTrainer
-from src.machine_learning.svm_model_trainer import SvmModelTrainer
-from datetime import datetime
+
+import time
+
+import trainer
+import ne_creator
+from enitites.features.composite import FeatureComposite
+from enitites.features.part_of_speech import POSFeature
+from enitites.features.length import LengthFeature
+from enitites.features.numbers import NumbersInTokenFeature
+from enitites.features.case import CaseFeature
+from enitites.features.morpho_case import MorphoFeature
+from enitites.features.context_feature import ContextFeature
+from enitites.features.special_chars import SpecCharsFeature
+from enitites.features.letters import LettersFeature
+from enitites.features.df import DFFeature
+from enitites.features.position_in_sentence import PositionFeature
+from enitites.features.not_in_stop_words import StopWordsFeature
+from enitites.features.case_concordance import ConcordCaseFeature
+from enitites.features.punctuation import PunctFeature
+from enitites.features.affix_feature import AffixFeature
+from enitites.features.if_no_lowercase import LowerCaseFeature
+from enitites.features.gazetteer import GazetterFeature
+from machine_learning.majorclass_model_trainer import MajorClassModelTrainer
+from machine_learning.random_model_trainer import RandomModelTrainer
+from machine_learning.svm_model_trainer import SvmModelTrainer
 
 
 
@@ -22,11 +36,13 @@ from datetime import datetime
 
 
 def main():
+    print(datetime.datetime.now())
     args = parse_arguments()
     trainer, feature = choose_model(args.algorythm, args.window)
     output_path = train_and_compute_nes_from(model_trainer=trainer, feature=feature, trainset_path=args.trainset_path,
                                testset_path=args.testset_path, output_path=args.output_path)
     print(output_path)
+    print(datetime.datetime.now())
 
 
 # --------------------------------------------------------------------
@@ -61,7 +77,7 @@ def choose_model(method, window):
         return RandomModelTrainer(), FeatureComposite()
     elif method == 'svm':
         feature = get_composite_feature(window)
-        return SvmModelTrainer(decision_function_shape='ovo', kernel=None), feature
+        return SvmModelTrainer(kernel=None), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
 
@@ -71,7 +87,9 @@ def get_composite_feature(window):
     Adding features to composite
     :return: composite (feature storing features)
     """
-    list_of_features = [LengthFeature()]
+    list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
+                        LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(), StopWordsFeature(),
+                        AffixFeature('pre'), AffixFeature('suf')]
     basic_features = [POSFeature(), CaseFeature(), MorphoFeature()]
     for feature in basic_features:
         for offset in range(-window, window + 1):
@@ -90,6 +108,7 @@ def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_pa
     :return: named entities
     """
     model = trainer.train(model_trainer, feature, trainset_path)
+    print("Training finished", datetime.datetime.now())
     return ne_creator.compute_nes(testset_path, feature, model, output_path)
 
 

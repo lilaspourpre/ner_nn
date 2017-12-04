@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from collections import Counter
 from sortedcontainers import SortedDict
-from src.machine_learning.i_model_trainer import ModelTrainer
-from src.enitites.models.random_model import RandomModel
+from machine_learning.i_model_trainer import ModelTrainer
+from enitites.models.random_model import RandomModel
 
 
 class RandomModelTrainer(ModelTrainer):

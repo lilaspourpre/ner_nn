@@ -7,10 +7,10 @@ class AbstractFeature():
         pass
 
     @abstractmethod
-    def compute_vector_for(self, token, tokenslist):
+    def compute_vector_for(self, token, document):
         """
         :param token: tokenObject
-        :param tokenslist: list of all document tokens
+        :param document: documentObject
         :return: vector
         """
         pass
