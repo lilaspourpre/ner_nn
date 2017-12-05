@@ -13,6 +13,7 @@ def untag2(list_of_tags, list_of_tokens):
         ne_words = []
         ne_tag = None
 
+        # XXX last NE may be lost - consider, for example: ... O O B I
         for index in range(len(list_of_tokens)):
             current_tag = list_of_tags[index]
             current_token = list_of_tokens[index]
