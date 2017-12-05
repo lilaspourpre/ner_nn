@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.enitites.features.predicate_feature import PredicateFeature
+from src.enitites.features.predicate_feature import PredicateFeature # XXX src is still here
 
 class NumbersInTokenFeature(PredicateFeature):
     def __init__(self, predicates=(str.isalpha, str.isdigit, str.isalnum)):

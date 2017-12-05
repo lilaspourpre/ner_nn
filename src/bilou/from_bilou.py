@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# XXX what for is suffix 2 for the method?
+# XXX the function is huge (max nested level is 7) - split
 def untag2(list_of_tags, list_of_tokens):
     """
     :param list_of_tags:
@@ -15,6 +17,7 @@ def untag2(list_of_tags, list_of_tokens):
             current_tag = list_of_tags[index]
             current_token = list_of_tokens[index]
 
+            # XXX it seems dealing with O and U is processing in two parts
             if ne_tag == None and ne_words == []:
                 if current_tag.startswith('U'):
                     dict_of_final_ne[tuple([current_token])] = current_tag[1:]
@@ -111,6 +114,7 @@ def __to_output_format(dict_nes):
     return list_of_results_for_output
 
 
+# XXX unused method
 def __to_output_format2(dict_nes):
     """
     :param dict_nes:

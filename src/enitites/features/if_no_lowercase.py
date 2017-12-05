@@ -8,6 +8,7 @@ class LowerCaseFeature(AbstractFeature):
     def __init__(self):
         super().__init__()
 
+    # XXX overcomplicated
     def compute_vector_for(self, token, document):
         token_text = token.get_text().lower()
         if token_text != token.get_text():

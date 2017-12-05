@@ -3,7 +3,7 @@ from enitites.features.abstract_feature import AbstractFeature
 
 
 class CheckInListFeature(AbstractFeature):
-    def __init__(self, name, list_of_strings, function=None, return_type=1):
+    def __init__(self, name, list_of_strings, function=None, return_type=1): # XXX return_type is &^%@$!
         """
         :param name:
         :param list_of_strings:
@@ -18,12 +18,13 @@ class CheckInListFeature(AbstractFeature):
         for position in range(len(list_of_strings)):
             self.strings_with_position[list_of_strings[position]] = position
 
+    # XXX incorrect feature logic
     def compute_vector_for(self, token, document):
         result = [0] * self.get_vector_size()
         if self.function:
             parsed_words = document.get_morpho_parsed_tokens()
             parsed_word = parsed_words[token.get_id()]
-            what_to_compare = str(eval("parsed_word" + self.function))
+            what_to_compare = str(eval("parsed_word" + self.function)) # XXX very bad style
         else:
             what_to_compare = token.get_text()
         if what_to_compare in self.strings_with_position:

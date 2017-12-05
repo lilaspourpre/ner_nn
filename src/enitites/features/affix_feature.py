@@ -2,6 +2,7 @@
 import itertools
 from enitites.features.abstract_feature import AbstractFeature
 
+# XXX Congratulations! You've successfully stepped on this rake!
 class AffixFeature(AbstractFeature):
     def __init__(self, type_of_aff, affixes = None, length=3):
         super().__init__()

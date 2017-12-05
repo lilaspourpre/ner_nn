@@ -11,7 +11,7 @@ class ConcordCaseFeature(AbstractFeature):
 
     def __init__(self, cases_to_detect=CASES):
         super().__init__()
-        self.morph = pymorphy2.MorphAnalyzer()
+        self.morph = pymorphy2.MorphAnalyzer() # XXX why pymorphy2 is still here?
         self.case_to_position = {}
         for position in range(len(cases_to_detect)):
             self.case_to_position[cases_to_detect[position]] = position
@@ -23,11 +23,11 @@ class ConcordCaseFeature(AbstractFeature):
         if current_case == None:
             return [0, 0]
         else:
-            index = tokenlist.index(token)
+            index = tokenlist.index(token) # XXX this looks like document method (and it can be made efficient!)
             return [self.__concord_to_the_left(current_case, index, tokenlist), self.__concord_to_the_right(current_case,
                                                                                                            index,
                                                                                                            tokenlist)]
-
+    # XXX two methods below are copy/paste 
     def __concord_to_the_left(self, current_case, index, tokenlist):
         if index - 1 >= 0:
             return self.__compare_cases(current_case, index - 1, tokenlist)

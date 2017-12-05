@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from enitites.features.abstract_feature import AbstractFeature
 
+# XXX useless feature - because it is strange
 class PositionFeature(AbstractFeature):
     def __init__(self):
         super().__init__()

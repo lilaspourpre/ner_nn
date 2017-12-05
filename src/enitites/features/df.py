@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import bisect
+import bisect # XXX unused
 from collections import Counter
 from enitites.features.abstract_feature import AbstractFeature
 
@@ -9,7 +9,7 @@ class DFFeature(AbstractFeature):
         super().__init__()
 
     def compute_vector_for(self, token, document):
-        words_counts = Counter([t.get_text() for t in document.get_tokens()])
+        words_counts = Counter([t.get_text() for t in document.get_tokens()]) # XXX traversing whole doc for each token! Awful!
         return [words_counts[token.get_text()]]
 
     def get_vector_size(self):

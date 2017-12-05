@@ -4,7 +4,7 @@ from nltk.tokenize import sent_tokenize
 
 class Document:
     def __init__(self, list_of_tagged_tokens):
-        self.morph = pymorphy2.MorphAnalyzer()
+        self.morph = pymorphy2.MorphAnalyzer() # XXX not a good idea to keep analyzer here. I'd expect this information come as parameter
         self.__list_of_tagged_tokens = list_of_tagged_tokens
         self.__list_of_tokens = self.__compute_tokens()
         self.__dict_of_parsed_tokens = self.__compute_morpho_parsed_tokens()
@@ -35,6 +35,7 @@ class Document:
             dict_of_parsed_words[token.get_id()] = parsed_word
         return dict_of_parsed_words
 
+    # XXX actually, this info is within input file. No need to recompute it, especially with nltk
     def __compute_sentences(self):
         # https://github.com/mhq/train_punkt/blob/master/russian.pickle
         list_of_all_words = [t.get_text() for t in self.get_tokens()]

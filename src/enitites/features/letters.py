@@ -9,4 +9,4 @@ class LettersFeature(PredicateFeature):
         super().__init__(name='letters_type', list_of_predicates=predicates)
 
     def __create_search_predicate(self, reg):
-        return lambda x: 0 if re.compile(reg).search(x) == None else 1
+        return lambda x: 0 if re.compile(reg).search(x) == None else 1 # XXX compiling regexp each time is a bad idea
