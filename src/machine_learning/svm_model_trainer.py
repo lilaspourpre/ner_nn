@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from sklearn import svm
 from machine_learning.i_model_trainer import ModelTrainer
 from enitites.models.svm_model import SvmModel
-from sklearn import svm, model_selection
+from sklearn import svm
 
 
 class SvmModelTrainer(ModelTrainer):

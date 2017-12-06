@@ -2,7 +2,6 @@
 import collections
 import os
 import codecs
-from collections import OrderedDict
 from enitites.document import Document
 from enitites.tagged_token import TaggedToken
 from enitites.token import Token
@@ -14,22 +13,21 @@ from bilou import to_bilou
 # ********************************************************************
 
 
-def get_documents_with_tags_from(path):
+def get_documents_with_tags_from(path, morph_analyzer):
     get_tagged_tokens_from = __get_tagged_tokens_from
-    return __get_documents_from(path, get_tagged_tokens_from)
+    return __get_documents_from(path, get_tagged_tokens_from, morph_analyzer)
 
 
-def get_documents_without_tags_from(path):
+def get_documents_without_tags_from(path, morph_analyzer):
     get_tagged_tokens_from = __get_not_tagged_tokens_from
-    return __get_documents_from(path, get_tagged_tokens_from)
-
+    return __get_documents_from(path, get_tagged_tokens_from, morph_analyzer)
 
 
 # -------------------------------------------------------------------
 #       Common private function for getting documents
 # -------------------------------------------------------------------
 
-def __get_documents_from(path, get_tagged_tokens_from):
+def __get_documents_from(path, get_tagged_tokens_from, morph_analyzer):
     """
     Main function for getting documents
     :param path: path to the devset
@@ -38,7 +36,7 @@ def __get_documents_from(path, get_tagged_tokens_from):
     dict_of_documents = {}
     filenames = __get_filenames_from(path)
     for filename in filenames:
-        document = __create_document_from(filename, get_tagged_tokens_from)
+        document = __create_document_from(filename, get_tagged_tokens_from, morph_analyzer)
         dict_of_documents[filename] = document
     return dict_of_documents
 
@@ -64,14 +62,14 @@ def __get_filenames_from(path):
 #       Getting documents
 # -------------------------------------------------------------------
 
-def __create_document_from(filename, get_tagged_tokens_from):
+def __create_document_from(filename, get_tagged_tokens_from, morph_analyzer):
     """
     :param filename: which document to parse (name without extension)
     :return: document class
     """
     tokens = __get_tokens_from(filename)
     tagged_tokens = get_tagged_tokens_from(filename, tokens)
-    document = Document(tagged_tokens)
+    document = Document(tagged_tokens, morph_analyzer=morph_analyzer)
     return document
 
 
@@ -125,7 +123,7 @@ def __get_tagged_tokens_from(filename, tokens):
     :param tokens: tokens that need to be tagged
     :return: list of tagged tokens classes
     """
-    span_dict = __spanid_to_tokenids(filename + '.spans',[token.get_id() for token in tokens])
+    span_dict = __spanid_to_tokenids(filename + '.spans', [token.get_id() for token in tokens])
     object_dict = __to_dict_of_objects(filename + '.objects')
     dict_of_nes = __merge(object_dict, span_dict, tokens)
     return to_bilou.get_tagged_tokens_from(dict_of_nes, tokens)
@@ -192,10 +190,10 @@ def __to_dict_of_objects(object_file):
     """
     object_list = __parse_file(object_file)
     dict_of_objects = {}
-    for object in object_list:
-        object_id = object[0]
-        object_tag = object[1]
-        object_spans = object[2:]
+    for obj in object_list:
+        object_id = obj[0]
+        object_tag = obj[1]
+        object_spans = obj[2:]
         dict_of_objects[object_id] = {'tag': object_tag, 'spans': object_spans}
     return dict_of_objects
 
@@ -237,7 +235,7 @@ def __get_dict_of_nes(object_dict, span_dict):
 def __clean(ne_dict, tokens):
     """
     :param ne_dict:
-    :param tokenslist:
+    :param tokens:
     :return:
     """
     sorted_nes = sorted(ne_dict.items(), key=__sort_by_tokens)
@@ -263,8 +261,8 @@ def __clean(ne_dict, tokens):
 
 
 def __sort_by_tokens(tokens):
-    ids_as_int = [int(id) for id in tokens[1]]
-    return (min(ids_as_int), -max(ids_as_int))
+    ids_as_int = [int(token_id) for token_id in tokens[1]]
+    return min(ids_as_int), -max(ids_as_int)
 
 
 def __not_intersect(start_ne, current_ne):
@@ -288,7 +286,8 @@ def __find_all_range_of_tokens(tokens):
 def __check_order(list_of_tokens, dict_of_tokens_by_id, tokens):
     """
     :param list_of_tokens:
-    :param all_tokens:
+    :param dict_of_tokens_by_id:
+    :param tokens:
     :return:
     """
     list_of_tokens = [str(i) for i in __find_all_range_of_tokens(list_of_tokens)]
@@ -304,7 +303,7 @@ def __check_order(list_of_tokens, dict_of_tokens_by_id, tokens):
 def add_quotation_marks(result, tokens):
     """
     :param result:
-    :param dict_of_text_by_id:
+    :param tokens:
     :return:
     """
     result_tokens_texts = [tokens[token[1]].get_text() for token in result]

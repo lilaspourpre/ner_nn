@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from collections import Counter
-from sortedcontainers import SortedDict
 from machine_learning.i_model_trainer import ModelTrainer
 from enitites.models.random_model import RandomModel
 
@@ -9,7 +8,8 @@ class RandomModelTrainer(ModelTrainer):
     def __init__(self):
         super().__init__()
 
-    def __find_probabilities(self, list_of_candidates):
+    @staticmethod
+    def __find_probabilities(list_of_candidates):
         """
         :param list_of_candidates:
         :return: dict_of_distributed_probabilities
@@ -23,7 +23,7 @@ class RandomModelTrainer(ModelTrainer):
             list_of_distributed_probabilities.append((prev_weight + current_weight, tag))
             prev_weight += current_weight
 
-        list_of_distributed_probabilities[-1] = (1,list_of_distributed_probabilities[-1][1])
+        list_of_distributed_probabilities[-1] = (1, list_of_distributed_probabilities[-1][1])
         print(list_of_distributed_probabilities)
         return list_of_distributed_probabilities
 

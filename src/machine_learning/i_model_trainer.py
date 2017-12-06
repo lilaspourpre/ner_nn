@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from abc import abstractmethod
 
-class ModelTrainer():
+
+class ModelTrainer:
     def __init__(self):
         pass
 

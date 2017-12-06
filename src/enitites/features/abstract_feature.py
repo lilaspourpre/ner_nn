@@ -2,7 +2,7 @@
 from abc import abstractmethod
 
 
-class AbstractFeature():
+class AbstractFeature:
     def __init__(self):
         pass
 

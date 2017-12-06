@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class TaggedVector():
+class TaggedVector:
     def __init__(self, tag, vector):
         self.__tag = tag
         self.__vector = vector
@@ -16,4 +16,4 @@ class TaggedVector():
         if self.__tag:
             return "<" + self.__tag + "_" + str(self.__vector) + ">"
         else:
-            return "<None_" +str(self.__vector) + ">"
+            return "<None_" + str(self.__vector) + ">"

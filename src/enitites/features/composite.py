@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from enitites.features.abstract_feature import AbstractFeature
 
+
 class FeatureComposite(AbstractFeature):
     def __init__(self, feature_list=()):
         super().__init__()

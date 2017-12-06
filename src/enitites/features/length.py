@@ -1,5 +1,6 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from enitites.features.abstract_feature import AbstractFeature
+
 
 class LengthFeature(AbstractFeature):
     def __init__(self):
@@ -13,4 +14,3 @@ class LengthFeature(AbstractFeature):
 
     def __repr__(self):
         return 'length'
-

@@ -3,7 +3,6 @@ from enitites.features.abstract_feature import AbstractFeature
 
 
 class PredicateFeature(AbstractFeature):
-
     def __init__(self, name, list_of_predicates):
         super().__init__()
         self.name = name

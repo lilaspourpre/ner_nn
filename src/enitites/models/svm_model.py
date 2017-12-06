@@ -2,6 +2,7 @@
 import numpy as np
 from enitites.models.model import Model
 
+
 class SvmModel(Model):
     def __init__(self, svm):
         super().__init__()

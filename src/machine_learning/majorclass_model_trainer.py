@@ -8,7 +8,8 @@ class MajorClassModelTrainer(ModelTrainer):
     def __init__(self):
         super().__init__()
 
-    def __find_majority_class(self, list_of_candidates):
+    @staticmethod
+    def __find_majority_class(list_of_candidates):
         """
         :param list_of_candidates:
         :return:
