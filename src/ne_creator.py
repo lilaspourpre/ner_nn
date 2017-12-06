@@ -24,7 +24,8 @@ def compute_nes(testset_path, feature, model, output_path, morph_analyzer):
     """
     output_path = os.path.join(output_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
     documents = get_documents_without_tags_from(testset_path, morph_analyzer)
-    dict_of_docs_with_vectors = create_dict_of_vectors_for_each_doc(documents, feature)
+    dict_of_docs_with_vectors = create_dict_of_vectors_for_each_doc(documents, feature, model.get_prefixes(),
+                                                                    model.get_suffixes())
     for document_name, untagged_vectors_list in dict_of_docs_with_vectors.items():
         list_of_vectors = [untagged_vector.get_vector() for untagged_vector in untagged_vectors_list]
         ne_list = __define_nes(model, list_of_vectors, documents[document_name].get_tokens())

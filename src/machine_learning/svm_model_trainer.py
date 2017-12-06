@@ -8,6 +8,8 @@ from sklearn import svm
 class SvmModelTrainer(ModelTrainer):
     def __init__(self, kernel=None):
         super().__init__()
+        self.prefixes = None
+        self.suffixes = None
         if kernel == 'linear':
             self.svm = svm.LinearSVC(C=1, class_weight=None, dual=True, fit_intercept=True,
                                      intercept_scaling=1, loss='squared_hinge', max_iter=1000,
@@ -19,9 +21,9 @@ class SvmModelTrainer(ModelTrainer):
                                max_iter=-1, probability=False, random_state=None, shrinking=True,
                                tol=0.001, verbose=False)
 
-    def train(self, tagged_vectors):
+    def train(self, tagged_vectors, prefixes, suffixes):
         # print(tagged_vectors)
         array_of_vectors = np.array([tagged_vector.get_vector() for tagged_vector in tagged_vectors])
         array_of_tags = np.array([tagged_vector.get_tag() for tagged_vector in tagged_vectors])
         self.svm.fit(array_of_vectors, array_of_tags)
-        return SvmModel(self.svm)
+        return SvmModel(self.svm, prefixes, suffixes)

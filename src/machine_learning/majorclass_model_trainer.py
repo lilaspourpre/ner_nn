@@ -17,7 +17,7 @@ class MajorClassModelTrainer(ModelTrainer):
         counted_tags = Counter(list_of_candidates)
         return counted_tags.most_common(1)[0][0]
 
-    def train(self, tagged_vectors):
+    def train(self, tagged_vectors, prefixes, suffixes):
         tags = [tagged_vector.get_tag() for tagged_vector in tagged_vectors]
         major_class = self.__find_majority_class(tags)
-        return MajorClassModel(major_class)
+        return MajorClassModel(major_class, prefixes, suffixes)

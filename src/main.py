@@ -39,7 +39,7 @@ def main():
     output_path = train_and_compute_nes_from(model_trainer=model_trainer, feature=feature,
                                              trainset_path=args.trainset_path,
                                              testset_path=args.testset_path, output_path=args.output_path,
-                                             morph_analyzer=pymorphy2.MorphAnalyzer())
+                                             morph_analyzer=pymorphy2.MorphAnalyzer(), ngram_affixes=args.ngram_affixes)
     print(output_path)
     print(datetime.datetime.now())
 
@@ -55,6 +55,7 @@ def parse_arguments():
     parser.add_argument("-a", "--algorythm", help='"majorclass", "svm" or "random" options are available',
                         required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
+    parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=2)
     parser.add_argument("-t", "--trainset_path", help="path to the trainset files directory")
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")
     parser.add_argument("-o", "--output_path", help="path to the output files directory",
@@ -90,7 +91,7 @@ def get_composite_feature(window):
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
                         LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(), StopWordsFeature(),
-                        PunctFeature()]  # AffixFeature('pre'), AffixFeature('suf'),
+                        AffixFeature('pre'), AffixFeature('suf'), PunctFeature()]
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature()]
     for feature in basic_features:
         for offset in range(-window, window + 1):
@@ -101,7 +102,8 @@ def get_composite_feature(window):
 
 # --------------------------------------------------------------------
 
-def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_path, output_path, morph_analyzer):
+def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_path, output_path, morph_analyzer,
+                               ngram_affixes):
     """
     :param model_trainer:
     :param feature:
@@ -111,7 +113,7 @@ def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_pa
     :param morph_analyzer:
     :return:
     """
-    model = trainer.train(model_trainer, feature, morph_analyzer, trainset_path)
+    model = trainer.train(model_trainer, feature, morph_analyzer, ngram_affixes, trainset_path)
     print("Training finished", datetime.datetime.now())
     return ne_creator.compute_nes(testset_path, feature, model, output_path, morph_analyzer)
 

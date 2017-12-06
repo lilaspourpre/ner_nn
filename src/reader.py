@@ -13,21 +13,21 @@ from bilou import to_bilou
 # ********************************************************************
 
 
-def get_documents_with_tags_from(path, morph_analyzer):
+def get_documents_with_tags_from(path, morph_analyzer, ngram_affixes):
     get_tagged_tokens_from = __get_tagged_tokens_from
-    return __get_documents_from(path, get_tagged_tokens_from, morph_analyzer)
+    return __get_documents_from(path, get_tagged_tokens_from, morph_analyzer, ngram_affixes)
 
 
-def get_documents_without_tags_from(path, morph_analyzer):
+def get_documents_without_tags_from(path, morph_analyzer, ngram_affixes=None):
     get_tagged_tokens_from = __get_not_tagged_tokens_from
-    return __get_documents_from(path, get_tagged_tokens_from, morph_analyzer)
+    return __get_documents_from(path, get_tagged_tokens_from, morph_analyzer, ngram_affixes)
 
 
 # -------------------------------------------------------------------
 #       Common private function for getting documents
 # -------------------------------------------------------------------
 
-def __get_documents_from(path, get_tagged_tokens_from, morph_analyzer):
+def __get_documents_from(path, get_tagged_tokens_from, morph_analyzer, ngram_affixes):
     """
     Main function for getting documents
     :param path: path to the devset
@@ -36,7 +36,7 @@ def __get_documents_from(path, get_tagged_tokens_from, morph_analyzer):
     dict_of_documents = {}
     filenames = __get_filenames_from(path)
     for filename in filenames:
-        document = __create_document_from(filename, get_tagged_tokens_from, morph_analyzer)
+        document = __create_document_from(filename, get_tagged_tokens_from, morph_analyzer, ngram_affixes)
         dict_of_documents[filename] = document
     return dict_of_documents
 
@@ -62,14 +62,14 @@ def __get_filenames_from(path):
 #       Getting documents
 # -------------------------------------------------------------------
 
-def __create_document_from(filename, get_tagged_tokens_from, morph_analyzer):
+def __create_document_from(filename, get_tagged_tokens_from, morph_analyzer, ngram_affixes):
     """
     :param filename: which document to parse (name without extension)
     :return: document class
     """
     tokens = __get_tokens_from(filename)
     tagged_tokens = get_tagged_tokens_from(filename, tokens)
-    document = Document(tagged_tokens, morph_analyzer=morph_analyzer)
+    document = Document(tagged_tokens, morph_analyzer=morph_analyzer, ngram_affixes=ngram_affixes)
     return document
 
 

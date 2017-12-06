@@ -7,5 +7,5 @@ class ModelTrainer:
         pass
 
     @abstractmethod
-    def train(self, tagged_vectors):
+    def train(self, tagged_vectors, prefixes, suffixes):
         pass

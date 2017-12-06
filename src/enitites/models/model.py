@@ -13,3 +13,11 @@ class Model:
         :return: tag for the vector
         """
         pass
+
+    @abstractmethod
+    def get_prefixes(self):
+        pass
+
+    @abstractmethod
+    def get_suffixes(self):
+        pass
