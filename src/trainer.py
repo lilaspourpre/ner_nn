@@ -18,8 +18,8 @@ def train(model_trainer, feature, morph_analyzer, ngram_affixes,
     :return:
     """
     documents = get_documents_with_tags_from(path, morph_analyzer, ngram_affixes)
-    prefixes = set([item for document in documents.values() for item in document.get_suffixes()])
-    suffixes = set([item for document in documents.values() for item in document.get_prefixes()])
+    prefixes = set([item for document in documents.values() for item in document.get_prefixes()])
+    suffixes = set([item for document in documents.values() for item in document.get_suffixes()])
     print('Docs are here for training', datetime.datetime.now())
     list_of_tagged_vectors = create_list_of_tagged_vectors(documents, feature, prefixes, suffixes)
     print('Vectors are created', datetime.datetime.now())
