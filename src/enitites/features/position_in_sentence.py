@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 from enitites.features.abstract_feature import AbstractFeature
 
-# XXX useless feature - because it is strange
+
 class PositionFeature(AbstractFeature):
     def __init__(self):
         super().__init__()
+        self.indexes = [0, -1]
 
     def compute_vector_for(self, token, document):
+        result = [1, 1]
         dict_of_pos_in_sentences = document.get_sentences()
-        return [dict_of_pos_in_sentences[token.get_id()]]
+        for i in self.indexes:
+            if dict_of_pos_in_sentences[token.get_id()] == i:
+                result[i] = 0
+        return result
 
     def get_vector_size(self):
-        return 1
+        return 2
 
     def __repr__(self):
         return 'position in sentence'
-
-
