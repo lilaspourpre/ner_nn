@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
-from enitites.features.check_in_list_feature import CheckInListFeature
+from enitites.features.morpho_feature import MorphoFeature
 
 
-class MorphoFeature(CheckInListFeature):
+class MorphoCaseFeature(MorphoFeature):
     CASES = ('nomn', 'gent', 'datv', 'accs', 'ablt', 'loct', 'voct', 'gen2', 'acc2', 'loc2')
 
     def __init__(self, cases=CASES):
-        super().__init__('morphological case', cases, function=".tag.case")
+        super().__init__('morphological case', cases, predicate=self.__select_case)
+
+    @staticmethod
+    def __select_case(parsed_word):
+        return parsed_word.tag.case
