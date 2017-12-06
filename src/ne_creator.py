@@ -13,15 +13,17 @@ from vector_creator import create_dict_of_vectors_for_each_doc
 #       Main function
 # ********************************************************************
 
-def compute_nes(testset_path, feature, model, output_path):
+def compute_nes(testset_path, feature, model, output_path, morph_analyzer):
     """
+    :param morph_analyzer: 
+    :param output_path: 
     :param testset_path:
     :param feature:
     :param model:
     :return:
     """
     output_path = os.path.join(output_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-    documents = get_documents_without_tags_from(testset_path)
+    documents = get_documents_without_tags_from(testset_path, morph_analyzer)
     dict_of_docs_with_vectors = create_dict_of_vectors_for_each_doc(documents, feature)
     for document_name, untagged_vectors_list in dict_of_docs_with_vectors.items():
         list_of_vectors = [untagged_vector.get_vector() for untagged_vector in untagged_vectors_list]
@@ -36,7 +38,7 @@ def __define_nes(model, vectors_list, tokens):
     list_of_tags = []
     for vector in vectors_list:
         list_of_tags.append(model.predict(vector))
-    return from_bilou.untag2(list_of_tags=list_of_tags, list_of_tokens=tokens)
+    return from_bilou.untag(list_of_tags=list_of_tags, list_of_tokens=tokens)
 
 
 # --------------------------------------------------------------------
