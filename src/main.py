@@ -2,9 +2,7 @@
 import argparse
 import datetime
 import os
-
-import time
-
+import pymorphy2
 import trainer
 import ne_creator
 from enitites.features.composite import FeatureComposite
@@ -12,7 +10,7 @@ from enitites.features.part_of_speech import POSFeature
 from enitites.features.length import LengthFeature
 from enitites.features.numbers import NumbersInTokenFeature
 from enitites.features.case import CaseFeature
-from enitites.features.morpho_case import MorphoFeature
+from enitites.features.morpho_case import MorphoCaseFeature
 from enitites.features.context_feature import ContextFeature
 from enitites.features.special_chars import SpecCharsFeature
 from enitites.features.letters import LettersFeature
@@ -29,7 +27,6 @@ from machine_learning.random_model_trainer import RandomModelTrainer
 from machine_learning.svm_model_trainer import SvmModelTrainer
 
 
-
 # ********************************************************************
 #       Main function
 # ********************************************************************
@@ -38,9 +35,11 @@ from machine_learning.svm_model_trainer import SvmModelTrainer
 def main():
     print(datetime.datetime.now())
     args = parse_arguments()
-    trainer, feature = choose_model(args.algorythm, args.window)
-    output_path = train_and_compute_nes_from(model_trainer=trainer, feature=feature, trainset_path=args.trainset_path,
-                               testset_path=args.testset_path, output_path=args.output_path)
+    model_trainer, feature = choose_model(args.algorythm, args.window)
+    output_path = train_and_compute_nes_from(model_trainer=model_trainer, feature=feature,
+                                             trainset_path=args.trainset_path,
+                                             testset_path=args.testset_path, output_path=args.output_path,
+                                             morph_analyzer=pymorphy2.MorphAnalyzer())
     print(output_path)
     print(datetime.datetime.now())
 
@@ -53,7 +52,8 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-a", "--algorythm", help='"majorclass", "svm" or "random" options are available', required=True)
+    parser.add_argument("-a", "--algorythm", help='"majorclass", "svm" or "random" options are available',
+                        required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-t", "--trainset_path", help="path to the trainset files directory")
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")
@@ -68,6 +68,7 @@ def parse_arguments():
 
 def choose_model(method, window):
     """
+    :param window:
     :param method: method from argparse
     :return: model trainer + composite
     """
@@ -89,8 +90,8 @@ def get_composite_feature(window):
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
                         LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(), StopWordsFeature(),
-                        AffixFeature('pre'), AffixFeature('suf')]
-    basic_features = [POSFeature(), CaseFeature(), MorphoFeature()]
+                        PunctFeature()]  # AffixFeature('pre'), AffixFeature('suf'),
+    basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature()]
     for feature in basic_features:
         for offset in range(-window, window + 1):
             list_of_features.append(ContextFeature(feature, offset))
@@ -100,16 +101,19 @@ def get_composite_feature(window):
 
 # --------------------------------------------------------------------
 
-def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_path, output_path):
+def train_and_compute_nes_from(model_trainer, feature, trainset_path, testset_path, output_path, morph_analyzer):
     """
-    :param method: method to train model
-    :param trainset_path: path where the devset is
-    :param testset_path: path where the testset is
-    :return: named entities
+    :param model_trainer:
+    :param feature:
+    :param trainset_path:
+    :param testset_path:
+    :param output_path:
+    :param morph_analyzer:
+    :return:
     """
-    model = trainer.train(model_trainer, feature, trainset_path)
+    model = trainer.train(model_trainer, feature, morph_analyzer, trainset_path)
     print("Training finished", datetime.datetime.now())
-    return ne_creator.compute_nes(testset_path, feature, model, output_path)
+    return ne_creator.compute_nes(testset_path, feature, model, output_path, morph_analyzer)
 
 
 if __name__ == '__main__':
