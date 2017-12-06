@@ -91,7 +91,7 @@ def get_composite_feature(window):
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
                         LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(), StopWordsFeature(),
-                        AffixFeature(True), AffixFeature(False), PunctFeature()]
+                        AffixFeature(check_preffixes=True), AffixFeature(check_preffixes=False), PunctFeature()]
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature()]
     for feature in basic_features:
         for offset in range(-window, window + 1):
