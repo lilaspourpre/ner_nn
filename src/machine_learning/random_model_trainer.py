@@ -7,8 +7,6 @@ from enitites.models.random_model import RandomModel
 class RandomModelTrainer(ModelTrainer):
     def __init__(self):
         super().__init__()
-        self.prefixes = None
-        self.suffixes = None
 
     @staticmethod
     def __find_probabilities(list_of_candidates):
@@ -29,7 +27,7 @@ class RandomModelTrainer(ModelTrainer):
         print(list_of_distributed_probabilities)
         return list_of_distributed_probabilities
 
-    def train(self, tagged_vectors, prefixes, suffixes):
+    def train(self, tagged_vectors):
         tags = [tagged_vector.get_tag() for tagged_vector in tagged_vectors]
         list_of_distributed_probabilities = self.__find_probabilities(tags)
-        return RandomModel(list_of_distributed_probabilities, prefixes, suffixes)
+        return RandomModel(list_of_distributed_probabilities)
