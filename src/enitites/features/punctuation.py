@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from enitites.features.check_in_list_feature import CheckInListFeature
+from enitites.features.check_element_feature import CheckElementFeature
 
-
-class PunctFeature(CheckInListFeature):
+class PunctFeature(CheckElementFeature):
     SIGNS = (',', '.', '?', '!', ':', '-', '—', '«', '»')
 
     def __init__(self, punct=SIGNS):
-        super().__init__('punctuation', punct)
+        super().__init__('punctuation', punct, lambda x : x)
