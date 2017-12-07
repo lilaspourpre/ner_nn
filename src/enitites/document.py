@@ -4,7 +4,7 @@ from nltk.tokenize import sent_tokenize
 
 
 class Document:
-    def __init__(self, list_of_tagged_tokens, morph_analyzer=pymorphy2.MorphAnalyzer(), ngram_affixes=3):
+    def __init__(self, list_of_tagged_tokens, morph_analyzer=pymorphy2.MorphAnalyzer()):
         self.morph = morph_analyzer
         self.__list_of_tagged_tokens = list_of_tagged_tokens
         self.__list_of_tokens = self.__compute_tokens()
@@ -16,9 +16,6 @@ class Document:
         self.__index_by_tokens = self.__compute_index_by_tokens()
         self.__id_by_index = self.__compute_id_by_index()
         self.__token_texts = self.__compute_token_texts()
-        if ngram_affixes!=None:
-            self.__prefixes = self.__compute_affixes(end=ngram_affixes)
-            self.__suffixes = self.__compute_affixes(start=-ngram_affixes)
 
     def get_tagged_tokens(self):
         return self.__list_of_tagged_tokens
@@ -49,12 +46,6 @@ class Document:
 
     def get_id_by_index(self, index):
         return self.__id_by_index[index]
-
-    def get_prefixes(self):
-        return self.__prefixes
-
-    def get_suffixes(self):
-        return self.__suffixes
 
     def __compute_tokens(self):
         tokens = []
@@ -105,10 +96,6 @@ class Document:
 
     def __compute_token_texts(self):
         return list(self.__token_text_by_id.values())
-
-    def __compute_affixes(self, start=None, end=None):
-        tokens_texts = self.get_token_texts()
-        return [token[start:end] for token in tokens_texts]
 
     # XXX actually, this info is within input file. No need to recompute it, especially with nltk
     def __compute_sentences(self):
