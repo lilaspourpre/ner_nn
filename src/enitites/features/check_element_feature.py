@@ -3,20 +3,21 @@ from enitites.features.abstract_feature import AbstractFeature
 
 
 class CheckElementFeature(AbstractFeature):
-    def __init__(self, name, elements, predicate):
+    def __init__(self, name, elements, text_converter):
         super().__init__()
         self.name = name
-        self.predicate = predicate # XXX I'd not call it predicate, because it is not predicate. Maybe, text_converter?
+        self.text_converter = text_converter
         self.elements_with_position = {}
-        for position in range(len(elements)):
-            self.elements_with_position[elements[position]] = position
+        for item in elements:
+            self.elements_with_position[item] = len(self.elements_with_position)
 
     def compute_vector_for(self, token, document):
         result = [0] * self.get_vector_size()
         text_token = token.get_text()
-        cur_aff = self.predicate(text_token)
-        if cur_aff in self.elements_with_position:
-            result[self.elements_with_position[cur_aff]] = 1
+        list_of_cur_aff = self.text_converter(text_token)
+        for cur_aff in list_of_cur_aff:
+            if cur_aff in self.elements_with_position:
+                result[self.elements_with_position[cur_aff]] = 1
         return result
 
     def get_vector_size(self):
