@@ -8,8 +8,8 @@ class DFFeature(AbstractFeature):
         super().__init__()
 
     def compute_vector_for(self, token, document):
-        words_counts = Counter(document.get_token_texts()) # XXX still have to count tokens all the time. Why not store Counter within doc?
-        return [words_counts[token.get_text()]] # XXX maybe normalize counts?
+        words_counts = document.get_counter_token_texts()
+        return [words_counts[token.get_text()]/document.get_size()]
 
     def get_vector_size(self):
         return 1
