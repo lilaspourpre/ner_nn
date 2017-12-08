@@ -9,7 +9,7 @@ class PositionFeature(AbstractFeature):
 
     def compute_vector_for(self, token, document):
         result = [1, 1]
-        dict_of_pos_in_sentences = document.get_sentences()
+        dict_of_pos_in_sentences = document.get_pos_sentences()
         for i in self.indexes:
             if dict_of_pos_in_sentences[token.get_id()] == i:
                 result[i] = 0
