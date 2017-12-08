@@ -46,10 +46,8 @@ def main():
     test_documents = get_documents_without_tags_from(args.testset_path, morph_analyzer)
     print('Docs are ready for testing', datetime.now())
 
-    prefixes = __compute_affixes(train_documents, end=args.ngram_affixes)
-    suffixes = __compute_affixes(train_documents, start=-args.ngram_affixes)
-
-    model_trainer, feature = choose_model(args.algorythm, args.window, prefixes=prefixes, suffixes=suffixes)
+    model_trainer, feature = choose_model(args.algorythm, args.window, train_documents=train_documents,
+                                          ngram_affixes=args.ngram_affixes)
     train_and_compute_nes_from(model_trainer=model_trainer, feature=feature, train_documents=train_documents,
                                test_documents=test_documents, output_path=output_path)
     print("Testing finished", datetime.now())
@@ -67,7 +65,7 @@ def parse_arguments():
     parser.add_argument("-a", "--algorythm", help='"majorclass", "svm" or "random" options are available',
                         required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
-    parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=3)
+    parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=2)
     parser.add_argument("-t", "--trainset_path", help="path to the trainset files directory")
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")
     parser.add_argument("-o", "--output_path", help="path to the output files directory",
@@ -79,18 +77,7 @@ def parse_arguments():
 
 # --------------------------------------------------------------------
 
-
-def __compute_affixes(documents, start=None, end=None):
-    set_of_affixes = set()
-    for document in documents.values():
-        for token in document.get_token_texts():
-            set_of_affixes.update([token[start:end]]) # XXX why update with list and not add single element?
-    return tuple(set_of_affixes) # XXX why tuple?
-
-
-# --------------------------------------------------------------------
-
-def choose_model(method, window, prefixes, suffixes):
+def choose_model(method, window, train_documents, ngram_affixes):
     """
     :param window:
     :param method: method from argparse
@@ -101,27 +88,46 @@ def choose_model(method, window, prefixes, suffixes):
     elif method == 'random':
         return RandomModelTrainer(), FeatureComposite()
     elif method == 'svm':
-        feature = get_composite_feature(window, prefixes, suffixes)
+        feature = get_composite_feature(window, train_documents, ngram_affixes)
         return SvmModelTrainer(kernel=None), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
 
 
-def get_composite_feature(window, prefixes, suffixes):
+def get_composite_feature(window, train_documents, ngram_affixes):
     """
     Adding features to composite
     :return: composite (feature storing features)
     """
-
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
                         LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
-                        StopWordsFeature(), PrefixFeature(prefixes), SuffixFeature(suffixes)] # XXX Is it going to work, if I use non-default affix n-grams
+                        StopWordsFeature()]
+
+    # list_of_features.append(
+    #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, tuple([None] * ngram_affixes),
+    #                       tuple(range(1, ngram_affixes + 1))))
+    # list_of_features.append(
+    #     __compute_affixes(SuffixFeature, ngram_affixes, train_documents, tuple(range(-ngram_affixes, 0)),
+    #                       tuple([None] * ngram_affixes)))
+
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), PunctFeature()]
     for feature in basic_features:
         for offset in range(-window, window + 1):
             list_of_features.append(ContextFeature(feature, offset))
     composite = FeatureComposite(list_of_features)
     return composite
+
+
+# --------------------------------------------------------------------
+
+
+def __compute_affixes(feature, ngram_affixes, documents, start, end):
+    set_of_affixes = set()
+    for document in documents.values():
+        for token in document.get_counter_token_texts().keys():
+            for i in range(ngram_affixes):
+                set_of_affixes.add(token[start[i]:end[i]])
+    return feature(set_of_affixes, ngram_affixes)
 
 
 # --------------------------------------------------------------------
