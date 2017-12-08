@@ -21,8 +21,7 @@ class ConcordCaseFeature(AbstractFeature):
             return [self.__compare_cases(current_case, index - 1, document),
                     self.__compare_cases(current_case, index + 1, document)]
 
-    @staticmethod
-    def __compare_cases(current_case, other_index, document):
+    def __compare_cases(self, current_case, other_index, document):
         if other_index != -1 and other_index != len(document.get_tokens()):
             parsed_word = document.get_morpho_parsed_tokens()[document.get_id_by_index(other_index)]
             new_case = str(parsed_word.tag.case)
