@@ -18,9 +18,8 @@ class ConcordCaseFeature(AbstractFeature):
             return [0, 0]
         else:
             index = document.get_index_by_token(token)
-            return [self.__compare_cases(current_case, index - 1, document), self.__compare_cases(current_case,
-                                                                                                  index + 1,
-                                                                                                  document)]
+            return [self.__compare_cases(current_case, index - 1, document),
+                    self.__compare_cases(current_case, index + 1, document)]
 
     @staticmethod
     def __compare_cases(current_case, other_index, document):

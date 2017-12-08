@@ -19,5 +19,5 @@ class MajorClassModelTrainer(ModelTrainer):
 
     def train(self, tagged_vectors):
         tags = [tagged_vector.get_tag() for tagged_vector in tagged_vectors]
-        major_class = self.__find_majority_class(tags)
+        major_class = self.__find_majority_class(tags) # XXX it works, but looks a bit strange - calling static method with self
         return MajorClassModel(major_class)

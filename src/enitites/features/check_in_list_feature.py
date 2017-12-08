@@ -12,7 +12,7 @@ class CheckInListFeature(AbstractFeature):
         super().__init__()
         self.name = name
         self.forward = forward
-        self.strings_with_position = set(set_of_strings)
+        self.strings_with_position = set(set_of_strings) # XXX why with_position?
 
     def compute_vector_for(self, token, document):
         text_token = token.get_text()

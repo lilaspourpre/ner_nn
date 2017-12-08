@@ -2,10 +2,10 @@
 import pymorphy2
 from nltk.tokenize import sent_tokenize
 
-
+# XXX summary of XXXs below: lots of unneeded code was written
 class Document:
     def __init__(self, list_of_tagged_tokens, morph_analyzer=pymorphy2.MorphAnalyzer()):
-        self.morph = morph_analyzer
+        self.morph = morph_analyzer # XXX no need to store it - just pass to __compute_morpho_parsed_tokens
         self.__list_of_tagged_tokens = list_of_tagged_tokens
         self.__list_of_tokens = self.__compute_tokens()
         self.__dict_of_parsed_tokens = self.__compute_morpho_parsed_tokens()
@@ -32,12 +32,15 @@ class Document:
     def get_token_texts(self):
         return self.__token_texts
 
+    # XXX seems unused
     def get_token_text_by_id(self, token_id):
         return self.__token_text_by_id[token_id]
 
+    # XXX seems unused
     def get_token_text_by_index(self, index):
         return self.__token_text_by_index[index]
-
+    
+    # XXX seems unused
     def get_id_by_token(self, token):
         return self.__id_by_tokens[token]
 
@@ -45,6 +48,7 @@ class Document:
         return self.__index_by_tokens[token]
 
     def get_id_by_index(self, index):
+        # XXX no need to create special map for this operation. Straightforward implementation would be fast enough
         return self.__id_by_index[index]
 
     def __compute_tokens(self):
@@ -109,6 +113,7 @@ class Document:
             sent_split = sent.split()
             for i in range(len(sent_split) - 1):
                 dict_of_pos_in_sentences[list_of_all_ids[index + i]] = i
+            # XXX bad idea: not logical and tightly coupled with position feature implementation
             dict_of_pos_in_sentences[list_of_all_ids[index + len(sent_split) - 1]] = -1
             index += len(sent_split)
         return dict_of_pos_in_sentences

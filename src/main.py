@@ -84,8 +84,8 @@ def __compute_affixes(documents, start=None, end=None):
     set_of_affixes = set()
     for document in documents.values():
         for token in document.get_token_texts():
-            set_of_affixes.update([token[start:end]])
-    return tuple(set_of_affixes)
+            set_of_affixes.update([token[start:end]]) # XXX why update with list and not add single element?
+    return tuple(set_of_affixes) # XXX why tuple?
 
 
 # --------------------------------------------------------------------
@@ -115,7 +115,7 @@ def get_composite_feature(window, prefixes, suffixes):
 
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
                         LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
-                        StopWordsFeature(), PrefixFeature(prefixes), SuffixFeature(suffixes)]
+                        StopWordsFeature(), PrefixFeature(prefixes), SuffixFeature(suffixes)] # XXX Is it going to work, if I use non-default affix n-grams
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), PunctFeature()]
     for feature in basic_features:
         for offset in range(-window, window + 1):

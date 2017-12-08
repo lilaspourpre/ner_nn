@@ -43,6 +43,7 @@ def untag(list_of_tags, list_of_tokens):
 
 def __check_bil(dict_of_final_ne, ne_words, ne_tag, current_tag, current_token):
     if ne_tag is None and ne_words == []:
+        # XXX incorrect logic for L - just need to finish NE, but it starts a new one
         ne_tag = current_tag[1:]
         ne_words = [current_token]
 
@@ -54,6 +55,7 @@ def __check_bil(dict_of_final_ne, ne_words, ne_tag, current_tag, current_token):
             if ne_tag == current_tag[1:]:
                 ne_words.append(current_token)
                 if current_tag.startswith('L'):
+                    # XXX looks like code from __check_o
                     dict_of_final_ne[tuple(ne_words)] = ne_tag
                     ne_tag = None
                     ne_words = []
@@ -64,12 +66,13 @@ def __check_bil(dict_of_final_ne, ne_words, ne_tag, current_tag, current_token):
 
 
 def __replace_by_new(dict_of_final_ne, ne_words, ne_tag, current_tag, current_token):
+    # XXX partially duplicates __check_o logic
     dict_of_final_ne[tuple(ne_words)] = ne_tag
     ne_tag = current_tag[1:]
     ne_words = [current_token]
     return dict_of_final_ne, ne_words, ne_tag
 
-
+# XXX I'd rename to something like __finish_ne_if_required
 def __check_o(dict_of_final_ne, ne_words, ne_tag):
     if ne_tag is not None and ne_words != []:
         dict_of_final_ne[tuple(ne_words)] = ne_tag

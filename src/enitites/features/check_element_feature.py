@@ -6,7 +6,7 @@ class CheckElementFeature(AbstractFeature):
     def __init__(self, name, elements, predicate):
         super().__init__()
         self.name = name
-        self.predicate = predicate
+        self.predicate = predicate # XXX I'd not call it predicate, because it is not predicate. Maybe, text_converter?
         self.elements_with_position = {}
         for position in range(len(elements)):
             self.elements_with_position[elements[position]] = position

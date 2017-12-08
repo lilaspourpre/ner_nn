@@ -11,7 +11,7 @@ class MorphoFeature(AbstractFeature):
         """
         super().__init__()
         self.name = name
-        self.function = predicate
+        self.function = predicate # XXX it's not predicate
         self.strings_with_position = {}
         for position in range(len(list_of_strings)):
             self.strings_with_position[list_of_strings[position]] = position
