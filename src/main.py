@@ -23,11 +23,12 @@ from enitites.features.prefix_feature import PrefixFeature
 from enitites.features.suffix_feature import SuffixFeature
 from enitites.features.if_no_lowercase import LowerCaseFeature
 from enitites.features.gazetteer import GazetterFeature
+from enitites.features.embedding_feature import EmbeddingFeature
 from machine_learning.majorclass_model_trainer import MajorClassModelTrainer
 from machine_learning.random_model_trainer import RandomModelTrainer
 from machine_learning.svm_model_trainer import SvmModelTrainer
 from reader import get_documents_with_tags_from, get_documents_without_tags_from
-
+from fast_text_model import get_model_for_embeddings
 
 # ********************************************************************
 #       Main function
@@ -48,6 +49,8 @@ def main():
 
     model_trainer, feature = choose_model(args.algorythm, args.window, train_documents=train_documents,
                                           ngram_affixes=args.ngram_affixes)
+    embedding_model = get_model_for_embeddings(train_documents.values())
+
     train_and_compute_nes_from(model_trainer=model_trainer, feature=feature, train_documents=train_documents,
                                test_documents=test_documents, output_path=output_path)
     print("Testing finished", datetime.now())
@@ -77,7 +80,7 @@ def parse_arguments():
 
 # --------------------------------------------------------------------
 
-def choose_model(method, window, train_documents, ngram_affixes):
+def choose_model(method, window, train_documents, ngram_affixes, embedding_model):
     """
     :param window:
     :param method: method from argparse
@@ -88,13 +91,13 @@ def choose_model(method, window, train_documents, ngram_affixes):
     elif method == 'random':
         return RandomModelTrainer(), FeatureComposite()
     elif method == 'svm':
-        feature = get_composite_feature(window, train_documents, ngram_affixes)
+        feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
         return SvmModelTrainer(kernel=None), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
 
 
-def get_composite_feature(window, train_documents, ngram_affixes):
+def get_composite_feature(window, train_documents, ngram_affixes, embedding_model):
     """
     Adding features to composite
     :return: composite (feature storing features)

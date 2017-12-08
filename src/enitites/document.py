@@ -8,10 +8,15 @@ class Document:
     def __init__(self, list_of_tagged_tokens, morph_analyzer=pymorphy2.MorphAnalyzer()):
         self.__list_of_tagged_tokens = list_of_tagged_tokens
         self.__list_of_tokens = self.__compute_tokens()
-        self.__dict_of_parsed_tokens = self.__compute_morpho_parsed_tokens(morph_analyzer)
+        self.__dict_of_parsed_tokens = self.__compute_morpho_parsed_tokens()
         self.__list_of_sentences = self.__compute_sentences()
+        self.__list_of_pos_sentences = self.__compute_pos_sentences()
+        self.__token_text_by_id = self.__compute_token_texts_by_id()
+        self.__token_text_by_index = self.__compute_token_texts_by_index()
+        self.__id_by_tokens = self.__compute_id_by_tokens()
         self.__index_by_tokens = self.__compute_index_by_tokens()
-        self.__counter_token_texts = self.__compute_counter_token_texts()
+        self.__id_by_index = self.__compute_id_by_index()
+        self.__token_texts = self.__compute_token_texts()
 
     def get_tagged_tokens(self):
         return self.__list_of_tagged_tokens
@@ -21,6 +26,9 @@ class Document:
 
     def get_morpho_parsed_tokens(self):
         return self.__dict_of_parsed_tokens
+
+    def get_pos_sentences(self):
+        return self.__list_of_pos_sentences
 
     def get_sentences(self):
         return self.__list_of_sentences
@@ -63,13 +71,16 @@ class Document:
 
     # XXX actually, this info is within input file. No need to recompute it, especially with nltk
     def __compute_sentences(self):
-        # https://github.com/mhq/train_punkt/blob/master/russian.pickle
         list_of_all_words = [t.get_text() for t in self.get_tokens()]
+        sent_tokenize_list = sent_tokenize(' '.join(list_of_all_words), language='russian')
+        return sent_tokenize_list
+
+    def __compute_pos_sentences(self):
+        # https://github.com/mhq/train_punkt/blob/master/russian.pickle
         list_of_all_ids = [t.get_id() for t in self.get_tokens()]
         dict_of_pos_in_sentences = {}
-        sent_tokenize_list = sent_tokenize(' '.join(list_of_all_words), language='russian')
         index = 0
-        for sent in sent_tokenize_list:
+        for sent in self.__list_of_sentences:
             sent_split = sent.split()
             for i in range(len(sent_split) - 1):
                 dict_of_pos_in_sentences[list_of_all_ids[index + i]] = i
