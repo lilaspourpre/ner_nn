@@ -14,10 +14,9 @@ class CheckElementFeature(AbstractFeature):
     def compute_vector_for(self, token, document):
         result = [0] * self.get_vector_size()
         text_token = token.get_text()
-        list_of_cur_aff = self.text_converter(text_token)
-        for cur_aff in list_of_cur_aff:
-            if cur_aff in self.elements_with_position:
-                result[self.elements_with_position[cur_aff]] = 1
+        cur_aff = self.text_converter(text_token)
+        if cur_aff in self.elements_with_position:
+            result[self.elements_with_position[cur_aff]] = 1
         return result
 
     def get_vector_size(self):

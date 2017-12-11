@@ -3,6 +3,8 @@ import argparse
 from datetime import datetime
 import os
 import pymorphy2
+from gensim.models import KeyedVectors
+
 import trainer
 import ne_creator
 from enitites.features.composite import FeatureComposite
@@ -28,7 +30,6 @@ from machine_learning.majorclass_model_trainer import MajorClassModelTrainer
 from machine_learning.random_model_trainer import RandomModelTrainer
 from machine_learning.svm_model_trainer import SvmModelTrainer
 from reader import get_documents_with_tags_from, get_documents_without_tags_from
-from fast_text_model import get_model_for_embeddings
 
 # ********************************************************************
 #       Main function
@@ -41,15 +42,16 @@ def main():
     args = parse_arguments()
     morph_analyzer = pymorphy2.MorphAnalyzer()
     output_path = os.path.join(args.output_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-
+    embedding_model = get_model_for_embeddings(args.model_path)
+    print('Model is ready')
     train_documents = get_documents_with_tags_from(args.trainset_path, morph_analyzer)
     print('Docs are ready for training', datetime.now())
     test_documents = get_documents_without_tags_from(args.testset_path, morph_analyzer)
     print('Docs are ready for testing', datetime.now())
 
+
     model_trainer, feature = choose_model(args.algorythm, args.window, train_documents=train_documents,
-                                          ngram_affixes=args.ngram_affixes)
-    embedding_model = get_model_for_embeddings(train_documents.values())
+                                          ngram_affixes=args.ngram_affixes, embedding_model=embedding_model)
 
     train_and_compute_nes_from(model_trainer=model_trainer, feature=feature, train_documents=train_documents,
                                test_documents=test_documents, output_path=output_path)
@@ -71,6 +73,9 @@ def parse_arguments():
     parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=2)
     parser.add_argument("-t", "--trainset_path", help="path to the trainset files directory")
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")
+    parser.add_argument("-m", "--model_path", help="path to the vector pre-trained model",
+                        default=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data',
+                                             'ruwikiruscorpora_0_300_20.bin'))
     parser.add_argument("-o", "--output_path", help="path to the output files directory",
                         default=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'output'))
 
@@ -104,14 +109,12 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
                         LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
-                        StopWordsFeature()]
+                        StopWordsFeature()] #, EmbeddingFeature(embedding_model)]
 
     # list_of_features.append(
-    #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, tuple([None] * ngram_affixes),
-    #                       tuple(range(1, ngram_affixes + 1))))
+    #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
     # list_of_features.append(
-    #     __compute_affixes(SuffixFeature, ngram_affixes, train_documents, tuple(range(-ngram_affixes, 0)),
-    #                       tuple([None] * ngram_affixes)))
+    #     __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
 
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), PunctFeature()]
     for feature in basic_features:
@@ -124,17 +127,21 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
 # --------------------------------------------------------------------
 
 
-def __compute_affixes(feature, ngram_affixes, documents, start, end):
+def __compute_affixes(feature, ngram_affixes, documents, start=None, end=None):
     set_of_affixes = set()
     for document in documents.values():
         for token in document.get_counter_token_texts().keys():
-            for i in range(ngram_affixes):
-                set_of_affixes.add(token[start[i]:end[i]])
+            set_of_affixes.add(token[start:end])
     return feature(set_of_affixes, ngram_affixes)
-
 
 # --------------------------------------------------------------------
 
+def get_model_for_embeddings(model_path):
+    model = KeyedVectors.load_word2vec_format(model_path, binary=True)
+    return model
+
+
+# --------------------------------------------------------------------
 def train_and_compute_nes_from(model_trainer, feature, train_documents, test_documents, output_path):
     """
     :param model_trainer:
