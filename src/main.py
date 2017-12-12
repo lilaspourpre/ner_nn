@@ -4,6 +4,7 @@ from datetime import datetime
 import os
 import pymorphy2
 from gensim.models import KeyedVectors
+from gensim.models.fasttext import FastText
 
 import trainer
 import ne_creator
@@ -97,7 +98,7 @@ def choose_model(method, window, train_documents, ngram_affixes, embedding_model
         return RandomModelTrainer(), FeatureComposite()
     elif method == 'svm':
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
-        return SvmModelTrainer(kernel=None), feature
+        return SvmModelTrainer(kernel='linear'), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
 
@@ -109,12 +110,12 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
                         LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
-                        StopWordsFeature()] #, EmbeddingFeature(embedding_model)]
+                        StopWordsFeature(), EmbeddingFeature(embedding_model)]
 
-    # list_of_features.append(
-    #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
-    # list_of_features.append(
-    #     __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
+    list_of_features.append(
+        __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
+    list_of_features.append(
+        __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
 
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), PunctFeature()]
     for feature in basic_features:
