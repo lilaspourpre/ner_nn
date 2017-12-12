@@ -139,6 +139,8 @@ def __compute_affixes(feature, ngram_affixes, documents, start=None, end=None):
 
 def get_model_for_embeddings(model_path):
     model = KeyedVectors.load_word2vec_format(model_path, binary=True)
+        #FastText.load_fasttext_format(model_path)
+        #load_word2vec_format(model_path, binary=True)
     return model
 
 

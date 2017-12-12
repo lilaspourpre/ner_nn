@@ -9,7 +9,7 @@ class DFFeature(AbstractFeature):
 
     def compute_vector_for(self, token, document):
         words_counts = document.get_counter_token_texts()
-        return [words_counts[token.get_text()]]
+        return [words_counts[token.get_text()]/len(document.get_tokens())]
 
     def get_vector_size(self):
         return 1
