@@ -2,6 +2,8 @@
 import argparse
 from datetime import datetime
 import os
+from fasttext import fasttext
+
 import pymorphy2
 from gensim.models import KeyedVectors
 from gensim.models.fasttext import FastText
@@ -76,7 +78,7 @@ def parse_arguments():
     parser.add_argument("-s", "--testset_path", help="path to the testset files directory")
     parser.add_argument("-m", "--model_path", help="path to the vector pre-trained model",
                         default=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data',
-                                             'ruwikiruscorpora_0_300_20.bin'))
+                                             'ru.bin'))
     parser.add_argument("-o", "--output_path", help="path to the output files directory",
                         default=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'output'))
 
@@ -138,9 +140,9 @@ def __compute_affixes(feature, ngram_affixes, documents, start=None, end=None):
 # --------------------------------------------------------------------
 
 def get_model_for_embeddings(model_path):
-    model = KeyedVectors.load_word2vec_format(model_path, binary=True)
-        #FastText.load_fasttext_format(model_path)
-        #load_word2vec_format(model_path, binary=True)
+    #model = KeyedVectors.load_word2vec_format(model_path, binary=True)
+    #model = fasttext.load_model(model_path)
+    model = FastText.load_fasttext_format(model_path)
     return model
 
 
