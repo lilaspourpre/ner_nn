@@ -2,10 +2,7 @@
 import argparse
 from datetime import datetime
 import os
-from fasttext import fasttext
-
 import pymorphy2
-from gensim.models import KeyedVectors
 from gensim.models.fasttext import FastText
 
 import trainer
@@ -110,8 +107,8 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     Adding features to composite
     :return: composite (feature storing features)
     """
-    list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), ConcordCaseFeature(), DFFeature(),
-                        LettersFeature(), GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
+    list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), DFFeature(),
+                        GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(), ConcordCaseFeature(),
                         StopWordsFeature(), EmbeddingFeature(embedding_model)]
 
     list_of_features.append(
@@ -119,7 +116,7 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     list_of_features.append(
         __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
 
-    basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), PunctFeature()]
+    basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), PunctFeature(), LettersFeature()]
     for feature in basic_features:
         for offset in range(-window, window + 1):
             list_of_features.append(ContextFeature(feature, offset))
@@ -140,8 +137,6 @@ def __compute_affixes(feature, ngram_affixes, documents, start=None, end=None):
 # --------------------------------------------------------------------
 
 def get_model_for_embeddings(model_path):
-    #model = KeyedVectors.load_word2vec_format(model_path, binary=True)
-    #model = fasttext.load_model(model_path)
     model = FastText.load_fasttext_format(model_path)
     return model
 

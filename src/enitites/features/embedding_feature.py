@@ -12,7 +12,6 @@ class EmbeddingFeature(AbstractFeature):
         text_token = token.get_text()
         try:
             vector = self.model[text_token]
-            print(text_token)
             return list(vector)
         except KeyError:
             return [0] * self.get_vector_size()

@@ -12,7 +12,7 @@ class LowerCaseFeature(AbstractFeature):
         return [0] if token_text_low in set_of_words else [1]
 
     def get_vector_size(self):
-        return 2
+        return 1
 
     def __repr__(self):
         return 'lowercase'
