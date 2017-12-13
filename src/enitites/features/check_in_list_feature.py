@@ -22,7 +22,7 @@ class CheckInListFeature(AbstractFeature):
         return [int(self.forward == result)]
 
     def get_vector_size(self):
-        return len(self.set_of_strings)
+        return 1
 
     def __repr__(self):
         return self.name
