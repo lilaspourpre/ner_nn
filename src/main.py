@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 import pymorphy2
 from gensim.models.fasttext import FastText
-
+from itertools import product
 import trainer
 import ne_creator
 from enitites.features.composite import FeatureComposite
@@ -27,6 +27,8 @@ from enitites.features.if_no_lowercase import LowerCaseFeature
 from enitites.features.gazetteer import GazetterFeature
 from enitites.features.embedding_feature import EmbeddingFeature
 from machine_learning.majorclass_model_trainer import MajorClassModelTrainer
+from machine_learning.multilayer_perceptron import MultilayerPerceptron
+from machine_learning.multilayer_perceptron_trainer import MultilayerPerceptronTrainer
 from machine_learning.random_model_trainer import RandomModelTrainer
 from machine_learning.svm_model_trainer import SvmModelTrainer
 from reader import get_documents_with_tags_from, get_documents_without_tags_from
@@ -67,7 +69,7 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-a", "--algorythm", help='"majorclass", "svm" or "random" options are available',
+    parser.add_argument("-a", "--algorythm", help='"majorclass", "svm", "ml_pc" or "random" options are available',
                         required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=2)
@@ -98,8 +100,13 @@ def choose_model(method, window, train_documents, ngram_affixes, embedding_model
     elif method == 'svm':
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
         return SvmModelTrainer(kernel='linear'), feature
+    elif method == 'ml_pc':
+        tags = compute_tags()
+        feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
+        mp = MultilayerPerceptron(input_size=int(feature.get_vector_size()), tags=tags, num_neurons=100)
+        return MultilayerPerceptronTrainer(epoch=1, nn=mp, batch_step=100), feature
     else:
-        raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm"')
+        raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm" or "ml_pc"')
 
 
 def get_composite_feature(window, train_documents, ngram_affixes, embedding_model):
@@ -107,22 +114,28 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     Adding features to composite
     :return: composite (feature storing features)
     """
-    list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), DFFeature(),
-                        GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(), ConcordCaseFeature(),
-                        StopWordsFeature(), EmbeddingFeature(embedding_model)]
+    list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), DFFeature(), ConcordCaseFeature(),
+                        GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
+                        StopWordsFeature()] #, EmbeddingFeature(embedding_model)]
 
-    list_of_features.append(
-        __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
-    list_of_features.append(
-        __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
+    # list_of_features.append(
+    #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
+    # list_of_features.append(
+    #     __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
 
-    basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), PunctFeature(), LettersFeature()]
+    basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), LettersFeature(), PunctFeature()]
     for feature in basic_features:
         for offset in range(-window, window + 1):
             list_of_features.append(ContextFeature(feature, offset))
     composite = FeatureComposite(list_of_features)
     return composite
 
+def compute_tags():
+    tags = ["PER", "LOC", "ORG"]
+    bilou = ["B", "I", "L", "U"]
+    list_of_tags = ["O"]
+    list_of_tags += [''.join(i) for i in product(bilou, tags)]
+    return list_of_tags
 
 # --------------------------------------------------------------------
 
