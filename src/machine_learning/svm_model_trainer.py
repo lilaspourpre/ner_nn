@@ -14,7 +14,10 @@ class SvmModelTrainer(ModelTrainer):
                         intercept_scaling=1, loss='hinge', max_iter=1000, multi_class='ovr',
                         penalty='l2', random_state=None, tol=0.0001, verbose=0)
         else:
-            self.svm = svm.SVC()
+            self.svm = svm.SVC(C=10, cache_size=200, class_weight=None, coef0=0.0,
+                               decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf',
+                               max_iter=-1, probability=False, random_state=None, shrinking=True,
+                               tol=0.001, verbose=False)
 
     def train(self, tagged_vectors):
         # print(tagged_vectors)
