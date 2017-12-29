@@ -32,9 +32,7 @@ def compute_nes(documents, feature, model, output_path):
 # --------------------------------------------------------------------
 
 def __define_nes(model, vectors_list, tokens):
-    list_of_tags = []
-    for vector in vectors_list:
-        list_of_tags.append(model.predict(vector))
+    list_of_tags = model.batch_predict(vectors_list)
     return from_bilou.untag(list_of_tags=list_of_tags, list_of_tokens=tokens)
 
 

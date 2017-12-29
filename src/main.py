@@ -104,7 +104,7 @@ def choose_model(method, window, train_documents, ngram_affixes, embedding_model
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
         mp = MultilayerPerceptron(input_size=int(feature.get_vector_size()), tags=tags, num_neurons=100)
-        return MultilayerPerceptronTrainer(epoch=1, nn=mp, batch_step=100), feature
+        return MultilayerPerceptronTrainer(epoch=100, nn=mp, batch_step=32), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm" or "ml_pc"')
 
@@ -116,12 +116,12 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), DFFeature(), ConcordCaseFeature(),
                         GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
-                        StopWordsFeature()] #, EmbeddingFeature(embedding_model)]
+                        StopWordsFeature(), EmbeddingFeature(embedding_model)]
 
-    # list_of_features.append(
-    #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
-    # list_of_features.append(
-    #     __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
+    #list_of_features.append(
+        #__compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
+    #list_of_features.append(
+        #__compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
 
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), LettersFeature(), PunctFeature()]
     for feature in basic_features:

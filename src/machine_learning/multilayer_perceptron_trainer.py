@@ -23,7 +23,7 @@ class MultilayerPerceptronTrainer():
             k = int(len(array_of_vectors) / self.batch_step) if len(array_of_vectors) % self.batch_step == 0 \
                 else int(len(array_of_vectors) / self.batch_step) + 1
             step = 0
-            for i in range(k):
+            for j in range(k):
                 self.nn.sess.run(self.nn.train, {self.nn.x: array_of_vectors[step:step + self.batch_step],
                                                  self.nn.y: array_of_tags[step:step + self.batch_step]})
                 step += self.batch_step

@@ -11,14 +11,11 @@ class MultilayerPerceptronModel(Model):
         self.model = model
         self.tags = tags
 
-    def predict(self, vector):
-        array_of_vectors = np.array([vector], dtype='float32')
-        prediction = tf.argmax(self.model)
-        index = prediction.eval(feed_dict={self.x: array_of_vectors}, session=self.session)
-        print(index)
-        print(type(index))
-        exit(0)
-        return self.tags[int(index)]
+    def batch_predict(self, list_of_vectors):
+        array_of_vectors = np.array(list_of_vectors, dtype='float32')
+        prediction = tf.argmax(self.model,1)
+        index_list = prediction.eval(feed_dict={self.x: array_of_vectors}, session=self.session)
+        return [self.tags[i] for i in index_list]
 
     def __repr__(self):
         return 'mlperc_model'
