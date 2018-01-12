@@ -15,3 +15,6 @@ class ModelTrainer:
             list_of_labels = [0 if item != list_of_all_tags[i] else 1 for item in labels]
             list_of_all_tags[i:i + 1] = [list_of_labels]
         return list_of_all_tags
+
+    def batch_train(self, tagged_vectors, division):
+        return self.train(tagged_vectors)

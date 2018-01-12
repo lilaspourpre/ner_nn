@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from enitites.models.rnn_model import RNNModel
 from machine_learning.i_model_trainer import ModelTrainer
-from wrapper import complement_data
+from wrapper import complement_data, format_data
 import numpy as np
 
 
@@ -11,13 +11,15 @@ class RNNTrainer(ModelTrainer):
         self.epoch = epoch
         self.nn = nn
 
-    def train(self, tagged_vectors):
+    def batch_train(self, tagged_vectors, division):
         vectors = [tagged_vector.get_vector() for tagged_vector in tagged_vectors]
-        array_of_vectors = np.array(complement_data(vectors, self.nn.tags), dtype='float32')
+        array_of_vectors = np.array(complement_data(format_data(vectors, division), self.nn.seq_max_len),
+                                    dtype='float32')
         array_of_tags = np.array(
             self.translator([tagged_vector.get_tag() for tagged_vector in tagged_vectors], self.nn.tags),
             dtype='float32')
         seqlen_list = [len(i) for i in vectors]
+
         return self.run_nn(array_of_vectors, array_of_tags, seqlen_list)
 
     def run_nn(self, array_of_vectors, array_of_tags, seqlen_list):

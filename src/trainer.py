@@ -17,6 +17,7 @@ def train(model_trainer, feature, documents):
     :return:
     """
     list_of_tagged_vectors = create_list_of_tagged_vectors(documents, feature)
+    split_lenghts = [length for doc in documents.values() for length in doc.get_sentences_lengths()]
     print('Vectors are created', datetime.datetime.now())
     print(len(list_of_tagged_vectors))
-    return model_trainer.train(list_of_tagged_vectors)
+    return model_trainer.batch_train(list_of_tagged_vectors, split_lenghts)

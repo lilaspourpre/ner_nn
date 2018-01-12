@@ -10,6 +10,7 @@ class Document:
         self.__list_of_tokens = self.__compute_tokens()
         self.__dict_of_parsed_tokens = self.__compute_morpho_parsed_tokens(morph_analyzer)
         self.__list_of_sentences = self.__compute_sentences()
+        self.__list_of_sentences_length = self.__compute_sentences_lengths()
         self.__list_of_pos_sentences = self.__compute_pos_sentences()
         self.__index_by_tokens = self.__compute_index_by_tokens()
         self.__counter_token_texts = self.__compute_counter_token_texts()
@@ -28,6 +29,9 @@ class Document:
 
     def get_sentences(self):
         return self.__list_of_sentences
+
+    def get_sentences_lengths(self):
+        return self.__list_of_sentences_length
 
     def get_counter_token_texts(self):
         return self.__counter_token_texts
@@ -84,3 +88,7 @@ class Document:
             dict_of_pos_in_sentences[list_of_all_ids[index + len(sent_split) - 1]] = -1
             index += len(sent_split)
         return dict_of_pos_in_sentences
+
+    def __compute_sentences_lengths(self):
+        lengths_list = [len(sentence.split()) for sentence in self.__list_of_sentences]
+        return lengths_list
