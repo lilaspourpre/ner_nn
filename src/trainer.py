@@ -18,4 +18,5 @@ def train(model_trainer, feature, documents):
     """
     list_of_tagged_vectors = create_list_of_tagged_vectors(documents, feature)
     print('Vectors are created', datetime.datetime.now())
+    print(len(list_of_tagged_vectors))
     return model_trainer.train(list_of_tagged_vectors)
