@@ -29,9 +29,13 @@ from enitites.features.embedding_feature import EmbeddingFeature
 from machine_learning.majorclass_model_trainer import MajorClassModelTrainer
 from machine_learning.multilayer_perceptron import MultilayerPerceptron
 from machine_learning.multilayer_perceptron_trainer import MultilayerPerceptronTrainer
+from machine_learning.rnn import RNN
+from machine_learning.rnn_trainer import RNNTrainer
 from machine_learning.random_model_trainer import RandomModelTrainer
 from machine_learning.svm_model_trainer import SvmModelTrainer
 from reader import get_documents_with_tags_from, get_documents_without_tags_from
+import warnings
+warnings.filterwarnings('ignore')
 
 # ********************************************************************
 #       Main function
@@ -51,7 +55,6 @@ def main():
     test_documents = get_documents_without_tags_from(args.testset_path, morph_analyzer)
     print('Docs are ready for testing', datetime.now())
 
-
     model_trainer, feature = choose_model(args.algorythm, args.window, train_documents=train_documents,
                                           ngram_affixes=args.ngram_affixes, embedding_model=embedding_model)
 
@@ -69,7 +72,7 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-a", "--algorythm", help='"majorclass", "svm", "ml_pc" or "random" options are available',
+    parser.add_argument("-a", "--algorythm", help='"majorclass", "svm", "ml_pc", "rnn" or "random" options are available',
                         required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=2)
@@ -105,6 +108,12 @@ def choose_model(method, window, train_documents, ngram_affixes, embedding_model
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
         mp = MultilayerPerceptron(input_size=int(feature.get_vector_size()), tags=tags, num_neurons=100)
         return MultilayerPerceptronTrainer(epoch=100, nn=mp, batch_step=32), feature
+    elif method == 'rnn':
+        tags = compute_tags()
+        feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
+        rnn = RNN(input_size=int(feature.get_vector_size()), tags=tags, hidden_size=100, batch_size=32,
+                  seq_max_len=select_max_seq_len(train_documents, 'text'))
+        return RNNTrainer(epoch=100, nn=rnn), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm" or "ml_pc"')
 
@@ -116,12 +125,12 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), DFFeature(), ConcordCaseFeature(),
                         GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
-                        StopWordsFeature(), EmbeddingFeature(embedding_model)]
+                        StopWordsFeature()] #, EmbeddingFeature(embedding_model)]
 
-    #list_of_features.append(
-        #__compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
-    #list_of_features.append(
-        #__compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
+    # list_of_features.append(
+    #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
+    # list_of_features.append(
+    #     __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
 
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), LettersFeature(), PunctFeature()]
     for feature in basic_features:
@@ -130,12 +139,24 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     composite = FeatureComposite(list_of_features)
     return composite
 
+
 def compute_tags():
     tags = ["PER", "LOC", "ORG"]
     bilou = ["B", "I", "L", "U"]
     list_of_tags = ["O"]
     list_of_tags += [''.join(i) for i in product(bilou, tags)]
     return list_of_tags
+
+def select_max_seq_len(train_documents, scope):
+    if 'sent' == scope:
+        all_counts = [len(sentence.split()) for value in train_documents.values() for sentence in value.get_sentences()]
+    elif 'text' == scope:
+        all_counts = [len(value.get_tokens()) for value in train_documents.values()]
+    else:
+        raise Exception('invalid scope')
+    print('max_seq_len = ', max(all_counts))
+    return max(all_counts)
+
 
 # --------------------------------------------------------------------
 
@@ -146,6 +167,7 @@ def __compute_affixes(feature, ngram_affixes, documents, start=None, end=None):
         for token in document.get_counter_token_texts().keys():
             set_of_affixes.add(token[start:end])
     return feature(set_of_affixes, ngram_affixes)
+
 
 # --------------------------------------------------------------------
 
