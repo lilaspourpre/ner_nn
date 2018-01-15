@@ -15,14 +15,16 @@ class RNNTrainer(ModelTrainer):
         vectors = [tagged_vector.get_vector() for tagged_vector in tagged_vectors]
         array_of_vectors = np.array(complement_data(format_data(vectors, division), self.nn.seq_max_len),
                                     dtype='float32')
-        array_of_tags = np.array(
-            self.translator([tagged_vector.get_tag() for tagged_vector in tagged_vectors], self.nn.tags),
+        array_of_tags = np.array(complement_data(format_data(
+            self.translator([tagged_vector.get_tag() for tagged_vector in tagged_vectors], self.nn.tags), division),
+            self.nn.seq_max_len),
             dtype='float32')
         seqlen_list = [len(i) for i in vectors]
+        print(array_of_vectors.shape)
+        print(array_of_tags.shape)
+        return self.run_nn(array_of_vectors, array_of_tags, seqlen_list, division)
 
-        return self.run_nn(array_of_vectors, array_of_tags, seqlen_list)
-
-    def run_nn(self, array_of_vectors, array_of_tags, seqlen_list):
+    def run_nn(self, array_of_vectors, array_of_tags, seqlen_list, division):
         for m in range(self.epoch):
             k = int(len(array_of_vectors) / self.nn.batch_size) if len(array_of_vectors) % self.nn.batch_size == 0 \
                 else int(len(array_of_vectors) / self.nn.batch_size) + 1
@@ -42,4 +44,4 @@ class RNNTrainer(ModelTrainer):
 
                 step += self.nn.batch_size
         return RNNModel(self.nn.sess, self.nn.outputs, self.nn.x, self.nn.output_size, self.nn.seqlen,
-                        self.nn.seq_max_len, self.nn.tags)
+                        self.nn.seq_max_len, self.nn.tags, division)

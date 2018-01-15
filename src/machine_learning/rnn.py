@@ -28,7 +28,7 @@ class RNN():
     def create_layer(self, inputs, num_outputs, activation_fn=tf.nn.relu,
                      weights_initializer=initializers.xavier_initializer(),
                      biases_initializer=tf.zeros_initializer()):
-        W = tf.Variable(weights_initializer([self.batch_size, self.hidden_size, num_outputs]))
+        W = tf.Variable(weights_initializer([inputs.shape[0].value, self.hidden_size, num_outputs]))
         b = tf.Variable(biases_initializer([num_outputs]))
         layer = activation_fn(tf.matmul(inputs, W) + b)
         return layer
