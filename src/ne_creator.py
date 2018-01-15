@@ -25,14 +25,15 @@ def compute_nes(documents, feature, model, output_path):
     dict_of_docs_with_vectors = create_dict_of_vectors_for_each_doc(documents, feature)
     for document_name, untagged_vectors_list in dict_of_docs_with_vectors.items():
         list_of_vectors = [untagged_vector.get_vector() for untagged_vector in untagged_vectors_list]
-        ne_list = __define_nes(model, list_of_vectors, documents[document_name].get_tokens())
+        split_lenghts = documents[document_name].get_sentences_lengths()
+        ne_list = __define_nes(model, list_of_vectors, documents[document_name].get_tokens(), split_lenghts)
         __write_to_file(ne_list, document_name, output_path)
 
 
 # --------------------------------------------------------------------
 
-def __define_nes(model, vectors_list, tokens):
-    list_of_tags = model.batch_predict(vectors_list)
+def __define_nes(model, vectors_list, tokens, split_lengths):
+    list_of_tags = model.split_batch_predict(vectors_list, split_lengths)
     return from_bilou.untag(list_of_tags=list_of_tags, list_of_tokens=tokens)
 
 

@@ -11,4 +11,4 @@ def complement_data(x, seq_max_len):
 
 def format_data(list_of_vectors, division):
     splitted_vectors = [[list_of_vectors.pop(0) for i in range(step)] for step in division]
-    return splitted_vectors
+    return splitted_vectors, [len(i) for i in splitted_vectors]

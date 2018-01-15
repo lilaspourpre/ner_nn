@@ -35,7 +35,9 @@ from machine_learning.random_model_trainer import RandomModelTrainer
 from machine_learning.svm_model_trainer import SvmModelTrainer
 from reader import get_documents_with_tags_from, get_documents_without_tags_from
 import warnings
+
 warnings.filterwarnings('ignore')
+
 
 # ********************************************************************
 #       Main function
@@ -48,8 +50,8 @@ def main():
     args = parse_arguments()
     morph_analyzer = pymorphy2.MorphAnalyzer()
     output_path = os.path.join(args.output_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-    embedding_model= None
-    #embedding_model = get_model_for_embeddings(args.model_path)
+    embedding_model = None
+    # embedding_model = get_model_for_embeddings(args.model_path)
     print('Model is ready')
     train_documents = get_documents_with_tags_from(args.trainset_path, morph_analyzer)
     print('Docs are ready for training', datetime.now())
@@ -57,7 +59,8 @@ def main():
     print('Docs are ready for testing', datetime.now())
 
     model_trainer, feature = choose_model(args.algorythm, args.window, train_documents=train_documents,
-                                          ngram_affixes=args.ngram_affixes, embedding_model=embedding_model)
+                                          test_documents=test_documents, ngram_affixes=args.ngram_affixes,
+                                          embedding_model=embedding_model)
 
     train_and_compute_nes_from(model_trainer=model_trainer, feature=feature, train_documents=train_documents,
                                test_documents=test_documents, output_path=output_path)
@@ -73,7 +76,8 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-a", "--algorythm", help='"majorclass", "svm", "ml_pc", "rnn" or "random" options are available',
+    parser.add_argument("-a", "--algorythm",
+                        help='"majorclass", "svm", "ml_pc", "rnn" or "random" options are available',
                         required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=2)
@@ -91,7 +95,7 @@ def parse_arguments():
 
 # --------------------------------------------------------------------
 
-def choose_model(method, window, train_documents, ngram_affixes, embedding_model):
+def choose_model(method, window, train_documents, test_documents, ngram_affixes, embedding_model):
     """
     :param window:
     :param method: method from argparse
@@ -113,8 +117,8 @@ def choose_model(method, window, train_documents, ngram_affixes, embedding_model
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
         rnn = RNN(input_size=int(feature.get_vector_size()), tags=tags, hidden_size=100, batch_size=32,
-                  seq_max_len=select_max_seq_len(train_documents, 'sent'))
-        return RNNTrainer(epoch=100, nn=rnn), feature
+                  seq_max_len=select_max_seq_len(train_documents, test_documents, 'sent'))
+        return RNNTrainer(epoch=10, nn=rnn), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm" or "ml_pc"')
 
@@ -126,7 +130,7 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), DFFeature(), ConcordCaseFeature(),
                         GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
-                        StopWordsFeature()] #, EmbeddingFeature(embedding_model)]
+                        StopWordsFeature()]  # , EmbeddingFeature(embedding_model)]
 
     # list_of_features.append(
     #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
@@ -148,11 +152,14 @@ def compute_tags():
     list_of_tags += [''.join(i) for i in product(bilou, tags)]
     return list_of_tags
 
-def select_max_seq_len(train_documents, scope):
+
+def select_max_seq_len(train_documents, test_documents, scope):
     if 'sent' == scope:
         all_counts = [len(sentence.split()) for value in train_documents.values() for sentence in value.get_sentences()]
+        all_counts += [len(sentence.split()) for value in test_documents.values() for sentence in value.get_sentences()]
     elif 'text' == scope:
         all_counts = [len(value.get_tokens()) for value in train_documents.values()]
+        all_counts += [len(value.get_tokens()) for value in test_documents.values()]
     else:
         raise Exception('invalid scope')
     print('max_seq_len = ', max(all_counts))
