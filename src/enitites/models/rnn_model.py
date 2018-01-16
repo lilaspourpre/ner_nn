@@ -28,12 +28,12 @@ class RNNModel(Model):
         #                                                self.seqlen: seqlen_list},
         #                                    session=self.session)
         # correct_prediction = tf.argmax(self.outputs, 2)
-        # index_list, output___ = self.session.run([correct_prediction, self.outputs],
-        #                                          feed_dict = {self.x: array_of_vectors,
-        #                                           self.seqlen: seqlen_list})
+        index_list, output___ = self.session.run([correct_prediction, self.outputs],
+                                                  feed_dict = {self.x: array_of_vectors,
+                                                               self.seqlen: seqlen_list})
 
-        index_list = correct_prediction.eval(feed_dict={self.x: array_of_vectors, self.seqlen: seqlen_list},
-                                             session=self.session)
+        #index_list = correct_prediction.eval(feed_dict={self.x: array_of_vectors, self.seqlen: seqlen_list},
+        #                                     session=self.session)
         return [self.tags[index_list[j][i]] for j in range(len(index_list)) for i in range(seqlen_list[j])]
 
 
