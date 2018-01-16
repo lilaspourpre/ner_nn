@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
-from tensorflow.contrib.layers.python.layers import initializers
 
 class RNN():
     def __init__(self, input_size, tags, hidden_size, batch_size):
