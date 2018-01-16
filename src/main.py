@@ -129,7 +129,7 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
     """
     list_of_features = [LengthFeature(), NumbersInTokenFeature(), PositionFeature(), DFFeature(), ConcordCaseFeature(),
                         GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
-                        StopWordsFeature()]  # , EmbeddingFeature(embedding_model)]
+                        StopWordsFeature(), EmbeddingFeature(embedding_model)]
 
     # list_of_features.append(
     #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
