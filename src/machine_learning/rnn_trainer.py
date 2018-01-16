@@ -2,7 +2,6 @@
 from enitites.models.rnn_model import RNNModel
 from machine_learning.i_model_trainer import ModelTrainer
 from wrapper import complement_data, format_data
-import numpy as np
 
 
 class RNNTrainer(ModelTrainer):

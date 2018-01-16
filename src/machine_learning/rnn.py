@@ -13,7 +13,7 @@ class RNN():
         self.seqlen = tf.placeholder(tf.int32, [None])
         self.rnn_cell = tf.contrib.rnn.BasicLSTMCell(hidden_size)
         self.mid_outputs, state = tf.nn.dynamic_rnn(self.rnn_cell, self.x, sequence_length=self.seqlen,
-                                                    swap_memory=True, dtype=tf.float32)
+                                                    dtype=tf.float32)
         self.outputs = tf.contrib.layers.fully_connected(self.mid_outputs, len(self.tags), activation_fn=tf.nn.tanh)
         self.cross_entropy = tf.reduce_mean(
             tf.nn.softmax_cross_entropy_with_logits(logits=self.outputs,
