@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-def complement_data(x, seq_max_len):
-    r_x = np.array(x)
-    new_x = []
-    for i in range(len(r_x)):
-        li = [[0. for k in range(np.array(r_x[i]).shape[1])] for m in range(seq_max_len-len(r_x[i]))]
-        new_x.append(np.concatenate((np.array(r_x[i]), np.array(li)), axis=0)) if li!=[] else new_x.append(r_x[i])
-    return new_x
+
+def complement_data(x):
+    array_x = np.array(x)
+    seq_max_len = max([len(seq) for seq in x])
+    result_x = []
+    for i in range(len(array_x)):
+        li = [[0.] * int(np.array(array_x[i]).shape[1])] * int(seq_max_len - len(array_x[i]))
+        result_x.append(np.concatenate((np.array(array_x[i]), np.array(li)), axis=0)) if li != [] else result_x.append(
+            array_x[i])
+    return result_x
+
 
 def format_data(list_of_vectors, division):
     splitted_vectors = [[list_of_vectors.pop(0) for i in range(step)] for step in division]

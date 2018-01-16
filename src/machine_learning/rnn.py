@@ -3,13 +3,12 @@ import tensorflow as tf
 from tensorflow.contrib.layers.python.layers import initializers
 
 class RNN():
-    def __init__(self, input_size, tags, hidden_size, batch_size, seq_max_len):
+    def __init__(self, input_size, tags, hidden_size, batch_size):
         self.input_size = input_size
         self.tags = tags
         self.hidden_size = hidden_size
-        self.seq_max_len = seq_max_len
         self.batch_size = batch_size
-        self.x = tf.placeholder(tf.float32, [None, seq_max_len, self.input_size], name='x')
+        self.x = tf.placeholder(tf.float32, [None, None, self.input_size], name='x')
         self.y = tf.placeholder(tf.float32, [None, None, len(self.tags)], name='y')
         self.seqlen = tf.placeholder(tf.int32, [None])
         self.rnn_cell = tf.contrib.rnn.BasicLSTMCell(hidden_size)

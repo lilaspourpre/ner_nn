@@ -116,8 +116,7 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
     elif method == 'rnn':
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
-        rnn = RNN(input_size=int(feature.get_vector_size()), tags=tags, hidden_size=100, batch_size=32,
-                  seq_max_len=select_max_seq_len(train_documents, test_documents, 'sent'))
+        rnn = RNN(input_size=int(feature.get_vector_size()), tags=tags, hidden_size=100, batch_size=32)
         return RNNTrainer(epoch=10, nn=rnn), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm" or "ml_pc"')
