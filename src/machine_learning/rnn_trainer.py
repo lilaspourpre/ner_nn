@@ -5,10 +5,11 @@ from wrapper import complement_data, format_data
 
 
 class RNNTrainer(ModelTrainer):
-    def __init__(self, epoch, nn):
+    def __init__(self, epoch, nn, tags):
         super().__init__()
         self.epoch = epoch
         self.nn = nn
+        self.tags = tags
 
     def batch_train(self, tagged_vectors, division):
         vectors = [tagged_vector.get_vector() for tagged_vector in tagged_vectors]
@@ -34,5 +35,4 @@ class RNNTrainer(ModelTrainer):
                                                      {self.nn.x: array_x, self.nn.y: array_y,
                                                       self.nn.seqlen: seqlen_list[step:step + self.nn.batch_size]}),m,j))
                 step += self.nn.batch_size
-
-        return RNNModel(self.nn.sess, self.nn.outputs, self.nn.x, self.nn.seqlen, self.nn.tags)
+        return RNNModel(self.nn.sess, self.nn.outputs, self.nn.x, self.nn.seqlen, self.tags)

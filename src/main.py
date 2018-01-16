@@ -116,8 +116,8 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
     elif method == 'rnn':
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
-        rnn = RNN(input_size=int(feature.get_vector_size()), tags=tags, hidden_size=100, batch_size=32)
-        return RNNTrainer(epoch=10, nn=rnn), feature
+        rnn = RNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=32)
+        return RNNTrainer(epoch=10, nn=rnn, tags=tags), feature
     else:
         raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm" or "ml_pc"')
 
@@ -150,19 +150,6 @@ def compute_tags():
     list_of_tags = ["O"]
     list_of_tags += [''.join(i) for i in product(bilou, tags)]
     return list_of_tags
-
-
-def select_max_seq_len(train_documents, test_documents, scope):
-    if 'sent' == scope:
-        all_counts = [len(sentence.split()) for value in train_documents.values() for sentence in value.get_sentences()]
-        all_counts += [len(sentence.split()) for value in test_documents.values() for sentence in value.get_sentences()]
-    elif 'text' == scope:
-        all_counts = [len(value.get_tokens()) for value in train_documents.values()]
-        all_counts += [len(value.get_tokens()) for value in test_documents.values()]
-    else:
-        raise Exception('invalid scope')
-    print('max_seq_len = ', max(all_counts))
-    return max(all_counts)
 
 
 # --------------------------------------------------------------------
