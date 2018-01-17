@@ -50,8 +50,7 @@ def main():
     args = parse_arguments()
     morph_analyzer = pymorphy2.MorphAnalyzer()
     output_path = os.path.join(args.output_path, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-    embedding_model = None
-    # embedding_model = get_model_for_embeddings(args.model_path)
+    embedding_model = get_model_for_embeddings(args.model_path)
     print('Model is ready')
     train_documents = get_documents_with_tags_from(args.trainset_path, morph_analyzer)
     print('Docs are ready for training', datetime.now())
@@ -77,7 +76,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-a", "--algorythm",
-                        help='"majorclass", "svm", "ml_pc", "rnn" or "random" options are available',
+                        help='"majorclass", "svm", "ml_pc", "lstm", "bilstm" or "random" options are available',
                         required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=2)
@@ -113,13 +112,18 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
         mp = MultilayerPerceptron(input_size=int(feature.get_vector_size()), tags=tags, num_neurons=100)
         return MultilayerPerceptronTrainer(epoch=100, nn=mp, batch_step=32), feature
-    elif method == 'rnn':
+    elif 'lstm' in method:
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
-        rnn = RNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=32)
-        return RNNTrainer(epoch=10, nn=rnn, tags=tags), feature
+        if 'bi' in method:
+            rnn = RNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8,
+                      bilstm=True)
+        else:
+            rnn = RNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8)
+        return RNNTrainer(epoch=100, nn=rnn, tags=tags), feature
     else:
-        raise argparse.ArgumentTypeError('Value has to be "majorclass" or "random" or "svm" or "ml_pc"')
+        raise argparse.ArgumentTypeError(
+            'Value has to be "majorclass" or "random" or "svm" or "ml_pc" or "lstm" or "bilstm"')
 
 
 def get_composite_feature(window, train_documents, ngram_affixes, embedding_model):
@@ -131,10 +135,10 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
                         GazetterFeature(), LowerCaseFeature(), SpecCharsFeature(),
                         StopWordsFeature(), EmbeddingFeature(embedding_model)]
 
-    # list_of_features.append(
-    #     __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
-    # list_of_features.append(
-    #     __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
+    list_of_features.append(
+        __compute_affixes(PrefixFeature, ngram_affixes, train_documents, end=ngram_affixes))
+    list_of_features.append(
+        __compute_affixes(SuffixFeature, ngram_affixes, train_documents, start=-ngram_affixes))
 
     basic_features = [POSFeature(), CaseFeature(), MorphoCaseFeature(), LettersFeature(), PunctFeature()]
     for feature in basic_features:
