@@ -30,6 +30,7 @@ from machine_learning.majorclass_model_trainer import MajorClassModelTrainer
 from machine_learning.multilayer_perceptron import MultilayerPerceptron
 from machine_learning.multilayer_perceptron_trainer import MultilayerPerceptronTrainer
 from machine_learning.rnn import RNN
+from machine_learning.cnn import CNN
 from machine_learning.rnn_trainer import RNNTrainer
 from machine_learning.random_model_trainer import RandomModelTrainer
 from machine_learning.svm_model_trainer import SvmModelTrainer
@@ -76,7 +77,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-a", "--algorythm",
-                        help='"majorclass", "svm", "ml_pc", "lstm", "bilstm" or "random" options are available',
+                        help='"majorclass", "svm", "ml_pc", "lstm", "bilstm" or "random" or "cnn" options are available',
                         required=True)
     parser.add_argument("-w", "--window", help='window size for context', default=2)
     parser.add_argument("-n", "--ngram_affixes", help='number of n-gramns for affixes', default=2)
@@ -121,9 +122,15 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
         else:
             rnn = RNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8)
         return RNNTrainer(epoch=100, nn=rnn, tags=tags), feature
+    elif 'cnn' in method:
+        tags = compute_tags()
+        feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
+        cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8,
+                  bilstm=True)
+        return RNNTrainer(epoch=100, nn=cnn, tags=tags), feature
     else:
         raise argparse.ArgumentTypeError(
-            'Value has to be "majorclass" or "random" or "svm" or "ml_pc" or "lstm" or "bilstm"')
+            'Value has to be "majorclass" or "random" or "svm" or "ml_pc" or "lstm" or "bilstm" or "cnn"')
 
 
 def get_composite_feature(window, train_documents, ngram_affixes, embedding_model):
