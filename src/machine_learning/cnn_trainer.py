@@ -3,9 +3,10 @@ from enitites.models.cnn_model import CNNModel
 from machine_learning.i_model_trainer import ModelTrainer
 from wrapper import complement_data, format_data
 import tensorflow as tf
+import numpy as np
 
 
-class RNNTrainer(ModelTrainer):
+class CNNTrainer(ModelTrainer):
     def __init__(self, epoch, nn, tags):
         super().__init__()
         self.__epoch = epoch
@@ -26,6 +27,8 @@ class RNNTrainer(ModelTrainer):
             step = 0
             for j in range(k):
                 array_x = complement_data(array_of_vectors[step:step + self.__nn.batch_size])
+                shape0, shape1, shape2 = np.array(array_x).shape
+                array_x = np.array(array_x).reshape(shape0, shape1, shape2, 1)
                 array_y = complement_data(array_of_tags[step:step + self.__nn.batch_size])
                 self.__nn.sess.run(self.__nn.train,
                                    {self.__nn.x: array_x,

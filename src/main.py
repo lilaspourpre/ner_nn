@@ -26,6 +26,7 @@ from enitites.features.suffix_feature import SuffixFeature
 from enitites.features.if_no_lowercase import LowerCaseFeature
 from enitites.features.gazetteer import GazetterFeature
 from enitites.features.embedding_feature import EmbeddingFeature
+from machine_learning.cnn_trainer import CNNTrainer
 from machine_learning.majorclass_model_trainer import MajorClassModelTrainer
 from machine_learning.multilayer_perceptron import MultilayerPerceptron
 from machine_learning.multilayer_perceptron_trainer import MultilayerPerceptronTrainer
@@ -125,9 +126,8 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
     elif 'cnn' in method:
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
-        cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8,
-                  bilstm=True)
-        return RNNTrainer(epoch=100, nn=cnn, tags=tags), feature
+        cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8,)
+        return CNNTrainer(epoch=100, nn=cnn, tags=tags), feature
     else:
         raise argparse.ArgumentTypeError(
             'Value has to be "majorclass" or "random" or "svm" or "ml_pc" or "lstm" or "bilstm" or "cnn"')
