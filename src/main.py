@@ -58,7 +58,6 @@ def main():
     print('Docs are ready for training', datetime.now())
     test_documents = get_documents_without_tags_from(args.testset_path, morph_analyzer)
     print('Docs are ready for testing', datetime.now())
-
     model_trainer, feature = choose_model(args.algorythm, args.window, train_documents=train_documents,
                                           test_documents=test_documents, ngram_affixes=args.ngram_affixes,
                                           embedding_model=embedding_model)

@@ -7,11 +7,12 @@ import numpy as np
 
 
 class CNNTrainer(ModelTrainer):
-    def __init__(self, epoch, nn, tags):
+    def __init__(self, epoch, nn, tags, max_len):
         super().__init__()
         self.__epoch = epoch
         self.__nn = nn
         self.__tags = tags
+        self.__max_len = max_len
 
     def batch_train(self, tagged_vectors, division):
         vectors = [tagged_vector.get_vector() for tagged_vector in tagged_vectors]
