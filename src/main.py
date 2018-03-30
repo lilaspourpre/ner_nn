@@ -125,7 +125,7 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
     elif 'cnn' in method:
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
-        cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8,)
+        cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8)
         return CNNTrainer(epoch=2, nn=cnn, tags=tags), feature
     else:
         raise argparse.ArgumentTypeError(
