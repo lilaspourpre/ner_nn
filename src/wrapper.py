@@ -5,7 +5,7 @@ import numpy as np
 def complement_data(x):
     array_x = np.array(x)
     seq_max_len = max([len(seq) for seq in x])
-    print('seq_max_len = ', seq_max_len)
+    #print('seq_max_len = ', seq_max_len)
     result_x = []
     for i in range(len(array_x)):
         li = [[0.] * int(np.array(array_x[i]).shape[1])] * int(seq_max_len - len(array_x[i]))
