@@ -35,36 +35,37 @@ class CNN():
 
 
 
-        # self.filter4 = tf.Variable(tf.random_normal([5, self.input_size, 1, self.input_size], stddev=0.1))
-        # self.conv_outputs4 = tf.nn.conv2d(self.x_new, self.filter4, [1, 1, self.input_size, 1], 'SAME')
-        # self.max_pool_outputs4 = tf.nn.max_pool(self.conv_outputs4, [1, 2, 1, 1], [1, 1, 1, 1], 'SAME')
-        # self.max_pool_outputs4 = tf.squeeze(self.max_pool_outputs4, [2])
+        self.filter4 = tf.Variable(tf.random_normal([5, self.input_size, 1, self.input_size], stddev=0.1))
+        self.conv_outputs4 = tf.nn.conv2d(self.x_new, self.filter4, [1, 1, self.input_size, 1], 'SAME')
+        self.max_pool_outputs4 = tf.nn.max_pool(self.conv_outputs4, [1, 2, 1, 1], [1, 1, 1, 1], 'SAME')
+        self.max_pool_outputs4 = tf.squeeze(self.max_pool_outputs4, [2])
+        self.conv_new = tf.expand_dims(self.max_pool_outputs4, -1)
 
         self.filter1 = tf.Variable(tf.random_normal([3, self.input_size, 1, self.hidden_size], stddev=0.1))
-        self.conv_outputs1 = tf.nn.conv2d(self.x_new, self.filter1, [1, 1, self.input_size, 1], 'SAME')
-        self.max_pool_outputs1 = tf.nn.max_pool(self.conv_outputs1, [1, 2, 1, 1], [1, 1, 1, 1], 'SAME')
+        self.conv_outputs1 = tf.nn.conv2d(self.conv_new, self.filter1, [1, 1, self.input_size, 1], 'SAME')
+        self.max_pool_outputs1 = tf.nn.max_pool(self.conv_outputs1, [1, 3, 1, 1], [1, 1, 1, 1], 'SAME')
         self.max_pool_outputs1 = tf.squeeze(self.max_pool_outputs1, [2])
 
         self.filter2 = tf.Variable(tf.random_normal([4, self.input_size, 1, self.hidden_size], stddev=0.1))
-        self.conv_outputs2 = tf.nn.conv2d(self.x_new, self.filter2, [1, 1, self.input_size, 1], 'SAME')
-        self.max_pool_outputs2 = tf.nn.max_pool(self.conv_outputs2, [1, 2, 1, 1], [1, 1, 1, 1], 'SAME')
+        self.conv_outputs2 = tf.nn.conv2d(self.conv_new, self.filter2, [1, 1, self.input_size, 1], 'SAME')
+        self.max_pool_outputs2 = tf.nn.max_pool(self.conv_outputs2, [1, 4, 1, 1], [1, 1, 1, 1], 'SAME')
         self.max_pool_outputs2 = tf.squeeze(self.max_pool_outputs2, [2])
 
         self.filter3 = tf.Variable(tf.random_normal([5, self.input_size, 1, self.hidden_size], stddev=0.1))
-        self.conv_outputs3 = tf.nn.conv2d(self.x_new, self.filter3, [1, 1, self.input_size, 1], 'SAME')
-        self.max_pool_outputs3 = tf.nn.max_pool(self.conv_outputs3, [1, 2, 1, 1], [1, 1, 1, 1], 'SAME')
+        self.conv_outputs3 = tf.nn.conv2d(self.conv_new, self.filter3, [1, 1, self.input_size, 1], 'SAME')
+        self.max_pool_outputs3 = tf.nn.max_pool(self.conv_outputs3, [1, 5, 1, 1], [1, 1, 1, 1], 'SAME')
         self.max_pool_outputs3 = tf.squeeze(self.max_pool_outputs3, [2])
 
         self.max_pool_outputs = tf.concat([self.max_pool_outputs1, self.max_pool_outputs2, self.max_pool_outputs3], -1)
 
-        self.outputs = tf.contrib.layers.fully_connected(self.max_pool_outputs, self.output_size, activation_fn=None)
+        self.outputs = tf.contrib.layers.fully_connected(self.max_pool_outputs, self.output_size, activation_fn=tf.tanh)
         mask = tf.sequence_mask(
-            tf.shape(self.seqlen),
+            self.seqlen,
             dtype=tf.float32)
 
-        self.cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.outputs, labels=self.y))
-        #self.loss = (tf.reduce_sum(self.cross_entropy * mask) / tf.cast(self.batch_size, tf.float32))
-        self.train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(self.cross_entropy)
+        self.cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=self.outputs, labels=self.y)
+        self.loss = (tf.reduce_sum(self.cross_entropy * mask) / tf.cast(tf.reduce_sum(self.seqlen), tf.float32))
+        self.train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(self.loss)
 
         self.init = tf.global_variables_initializer()
         self.sess = tf.Session()

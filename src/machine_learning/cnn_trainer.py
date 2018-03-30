@@ -34,7 +34,7 @@ class CNNTrainer(ModelTrainer):
                                     self.__nn.y: array_y,
                                     self.__nn.seqlen: seqlen_list[step:step + self.__nn.batch_size]
                                     })
-                print("loss: %s %s %s" % (self.__nn.sess.run([self.__nn.cross_entropy, tf.shape(self.__nn.x)],
+                print("loss: %s %s %s" % (self.__nn.sess.run([self.__nn.loss, tf.shape(self.__nn.x)],
                                                              {self.__nn.x: array_x, self.__nn.y: array_y,
                                                               self.__nn.seqlen: seqlen_list[
                                                                                 step:step + self.__nn.batch_size]}), m,
