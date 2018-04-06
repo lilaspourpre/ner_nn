@@ -2,6 +2,7 @@
 from enitites.models.rnn_model import RNNModel
 from machine_learning.i_model_trainer import ModelTrainer
 from wrapper import complement_data, format_data
+from tqdm import tqdm
 import tensorflow as tf
 
 
@@ -25,7 +26,7 @@ class RNNTrainer(ModelTrainer):
                 else int(len(array_of_vectors) / self.__nn.batch_size) + 1
             step = 0
             loss = 0
-            for j in range(k):
+            for j in tqdm(range(k)):
                 array_x = complement_data(array_of_vectors[step:step + self.__nn.batch_size])
                 array_y = complement_data(array_of_tags[step:step + self.__nn.batch_size])
                 loss, _ = self.__nn.sess.run([self.__nn.cross_entropy, self.__nn.train],
