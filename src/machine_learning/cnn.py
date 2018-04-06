@@ -3,7 +3,7 @@ import tensorflow as tf
 
 
 class CNN():
-    def __init__(self, input_size, output_size, hidden_size, batch_size, filter_sizes=(3, 4, 5), pooling_size=2):
+    def __init__(self, input_size, output_size, hidden_size, batch_size, filter_sizes=(3, 4, 5)):
         self.input_size = input_size
         self.output_size = output_size
         self.hidden_size = hidden_size
@@ -15,66 +15,64 @@ class CNN():
         self.y = tf.placeholder(tf.float32, [None, None, self.output_size], name='y')
         self.seqlen = tf.placeholder(tf.int32, [None])
 
-        def apply_conv(f_size, input_tensor, o_size):
-            filter = tf.Variable(tf.random_normal([f_size, self.input_size, 1, o_size], stddev=0.1))
-            conv_outputs = tf.nn.conv2d(input_tensor, filter, [1, 1, self.input_size, 1], 'SAME')
-            max_pool_outputs = tf.nn.max_pool(conv_outputs, [1, f_size, 1, 1], [1, 1, 1, 1], 'SAME')
-            return tf.squeeze(max_pool_outputs, [2])
+        output_layer = self.__add_convolution_layer(self.x, self.input_size, self.hidden_size)
 
-        def apply_conv2(f_size, input_tensor, o_size):
-            W = tf.Variable(tf.truncated_normal([f_size, self.input_size, 1, o_size], stddev=0.1), name="W")
-            b = tf.Variable(tf.constant(0.1, shape=[o_size]), name="b")
-            conv = tf.nn.conv2d(
-                input_tensor,
-                W,
-                strides=[1, 1, self.input_size, 1],
-                padding="SAME")
+        self.outputs = tf.layers.dense(output_layer, self.output_size, activation=tf.tanh,
+                                       kernel_initializer=tf.contrib.layers.xavier_initializer())
 
-            # Apply nonlinearity
-            h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
-            # Max-pooling over the outputs
-            pooled = tf.nn.max_pool(
-                h,
-                ksize=[1, f_size, 1, 1],
-                strides=[1, 1, 1, 1],
-                padding='SAME',
-                name="pool")
-            return tf.squeeze(pooled, [2])
-
-        self.conv1 = apply_conv2(self.filter_sizes[-1], self.x_new, self.input_size)
-        self.conv1_new = tf.expand_dims(self.conv1, -1)
-
-        for i in range(len(self.filter_sizes)):
-            if i == 0:
-                self.conv2 = apply_conv2(self.filter_sizes[i], self.conv1_new, self.hidden_size)
-            else:
-                self.conv2 = tf.concat([self.conv2,
-                                        apply_conv2(self.filter_sizes[i], self.conv1_new, self.hidden_size)], -1)
-
-        self.outputs = tf.contrib.layers.fully_connected(self.conv2, self.output_size, activation_fn=tf.tanh)
-
-        mask = tf.sequence_mask(
-             self.seqlen,
-             dtype=tf.float32)
-
-        self.cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=self.outputs, labels=self.y)
-        self.loss = (tf.reduce_sum(self.cross_entropy * mask) / tf.cast(tf.reduce_sum(self.seqlen), tf.float32))
-
-
-        self.train = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.loss)
-
-        #global_step = tf.Variable(0, name="global_step", trainable=False)
-        #optimizer = tf.train.AdamOptimizer(0.001)
-        #grads_and_vars = optimizer.compute_gradients(self.loss)
-        #self.train = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
-
-        # self.params = tf.trainable_variables()
-        # self.gradients = tf.gradients(self.loss, self.params)
-        # self.clipped_gradients, _ = tf.clip_by_global_norm(self.gradients, 1)
-        #
-        # self.optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
-        # self.train = self.optimizer.apply_gradients(zip(self.clipped_gradients, self.params))
+        self.loss = self.__add_loss(self.outputs)
+        self.train = self.__add_update_step(self.loss)
 
         self.init = tf.global_variables_initializer()
         self.sess = tf.Session()
         self.sess.run(self.init)
+
+    def __add_convolution_layer(self, input_tensor, input_size, output_size):
+        input_tensor_expand = tf.expand_dims(input_tensor, -1)
+        conv_outputs = []
+
+        for i in range(len(self.filter_sizes)):
+            filter_size = self.filter_sizes[i]
+            conv_1 = self.__apply_convolution(filter_size, input_tensor_expand, input_size, output_size)
+            conv_2 = self.__apply_convolution(filter_size, input_tensor_expand, input_size, output_size)
+            result = conv_1 * tf.sigmoid(conv_2)
+            #max_pool_outputs = tf.nn.max_pool(result, [1, filter_size, 1, 1], [1, 1, 1, 1], 'SAME')
+            conv_outputs.append(result)
+
+        conv_first = tf.concat(conv_outputs, 3)
+        conv_first = tf.squeeze(conv_first, [2])
+        return conv_first
+
+    def __apply_convolution(self, filter_size, input_tensor, input_size, output_size):
+        filter = tf.Variable(tf.random_normal([filter_size, input_size, 1, output_size], stddev=0.1))
+        bias = tf.Variable(tf.constant(0.1, shape=[output_size]), name="b")
+        conv_outputs = tf.nn.conv2d(input_tensor, filter, [1, 1, input_size, 1], 'SAME')
+        conv_outputs = tf.tanh(tf.nn.bias_add(conv_outputs, bias))
+        return conv_outputs
+
+    def __add_loss(self, logits):
+        mask = tf.sequence_mask(
+            self.seqlen,
+            dtype=tf.float32)
+
+        losses = tf.squeeze(
+            tf.losses.cosine_distance(
+                tf.nn.l2_normalize(self.y, -1),
+                logits,
+                axis=-1,
+                weights=1.0,
+                reduction=tf.losses.Reduction.NONE),
+            [-1])
+
+        loss = tf.reduce_sum(losses * mask) / tf.cast(tf.reduce_sum(self.output_size), tf.float32)
+        return loss
+
+    def __add_update_step(self, loss):
+        params = tf.trainable_variables()
+        gradients = tf.gradients(loss, params)
+        clipped_gradients, self.gradients_norm = tf.clip_by_global_norm(gradients, 1)
+
+        optimizer = tf.contrib.opt.NadamOptimizer(learning_rate=0.001)
+        # optimizer = tf.train.AdamOptimizer(learning_rate)
+        update_step = optimizer.apply_gradients(zip(clipped_gradients, params))
+        return update_step
