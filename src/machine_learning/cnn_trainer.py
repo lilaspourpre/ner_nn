@@ -4,6 +4,7 @@ from machine_learning.i_model_trainer import ModelTrainer
 from wrapper import complement_data, format_data
 import tensorflow as tf
 import numpy as np
+from tqdm import tqdm
 
 
 class CNNTrainer(ModelTrainer):
@@ -25,19 +26,17 @@ class CNNTrainer(ModelTrainer):
             k = int(len(array_of_vectors) / self.__nn.batch_size) if len(array_of_vectors) % self.__nn.batch_size == 0 \
                 else int(len(array_of_vectors) / self.__nn.batch_size) + 1
             step = 0
-            for j in range(k):
+            loss = 0
+            for j in tqdm(range(k)):
                 array_x = complement_data(array_of_vectors[step:step + self.__nn.batch_size])
                 array_x = np.array(array_x)
                 array_y = complement_data(array_of_tags[step:step + self.__nn.batch_size])
-                self.__nn.sess.run(self.__nn.train,
-                                   {self.__nn.x: array_x,
-                                    self.__nn.y: array_y,
-                                    self.__nn.seqlen: seqlen_list[step:step + self.__nn.batch_size]
-                                    })
-                print("loss: %s %s %s" % (self.__nn.sess.run([self.__nn.loss, tf.shape(self.__nn.x)],
-                                                             {self.__nn.x: array_x, self.__nn.y: array_y,
-                                                              self.__nn.seqlen: seqlen_list[
-                                                                                step:step + self.__nn.batch_size]}), m,
-                                          j))
+                loss, _ = self.__nn.sess.run([self.__nn.loss, self.__nn.train],
+                                             {self.__nn.x: array_x,
+                                              self.__nn.y: array_y,
+                                              self.__nn.seqlen: seqlen_list[step:step + self.__nn.batch_size]
+                                              })
                 step += self.__nn.batch_size
+            print("\nloss: %s  epoch: %s " % (loss, m))
+
         return CNNModel(self.__nn.sess, self.__nn.outputs, self.__nn.x, self.__nn.seqlen, self.__tags)

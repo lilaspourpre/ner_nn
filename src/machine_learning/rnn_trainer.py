@@ -24,18 +24,17 @@ class RNNTrainer(ModelTrainer):
             k = int(len(array_of_vectors) / self.__nn.batch_size) if len(array_of_vectors) % self.__nn.batch_size == 0 \
                 else int(len(array_of_vectors) / self.__nn.batch_size) + 1
             step = 0
+            loss = 0
             for j in range(k):
                 array_x = complement_data(array_of_vectors[step:step + self.__nn.batch_size])
                 array_y = complement_data(array_of_tags[step:step + self.__nn.batch_size])
-                self.__nn.sess.run(self.__nn.train,
-                                   {self.__nn.x: array_x,
-                                    self.__nn.y: array_y,
-                                    self.__nn.seqlen: seqlen_list[step:step + self.__nn.batch_size]
-                                    })
-                print("loss: %s %s %s" % (self.__nn.sess.run([self.__nn.cross_entropy, tf.shape(self.__nn.x)],
-                                                             {self.__nn.x: array_x, self.__nn.y: array_y,
-                                                              self.__nn.seqlen: seqlen_list[
-                                                                                step:step + self.__nn.batch_size]}), m,
-                                          j))
+                loss, _ = self.__nn.sess.run([self.__nn.cross_entropy, self.__nn.train],
+                                             {self.__nn.x: array_x,
+                                              self.__nn.y: array_y,
+                                              self.__nn.seqlen: seqlen_list[step:step + self.__nn.batch_size]
+                                              })
                 step += self.__nn.batch_size
+
+            print("\nloss: %s epoch: %s " % (loss, m))
+
         return RNNModel(self.__nn.sess, self.__nn.outputs, self.__nn.x, self.__nn.seqlen, self.__tags)
