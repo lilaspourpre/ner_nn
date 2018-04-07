@@ -27,7 +27,9 @@ class CNNTrainer(ModelTrainer):
                 else int(len(array_of_vectors) / self.__nn.batch_size) + 1
             step = 0
             loss = 0
-            for j in tqdm(range(k)):
+            pbar = tqdm(range(k))
+            for j in pbar:
+                pbar.set_description("loss: "+str(loss)+", batch: "+str(j)+", epoch: "+str(m))
                 array_x = complement_data(array_of_vectors[step:step + self.__nn.batch_size])
                 array_x = np.array(array_x)
                 array_y = complement_data(array_of_tags[step:step + self.__nn.batch_size])
