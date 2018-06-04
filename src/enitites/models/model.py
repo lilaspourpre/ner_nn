@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from abc import abstractmethod
 
 
 class Model:
@@ -12,10 +11,12 @@ class Model:
     def batch_predict(self, list_of_vectors):
         return [self.predict(vector) for vector in list_of_vectors]
 
-    @abstractmethod
     def predict(self, vector):
         """
         :param vector: getting 1 vetor
         :return: tag for the vector
         """
         pass
+
+    def save_model(self, path):
+        raise Exception("Not implemented")

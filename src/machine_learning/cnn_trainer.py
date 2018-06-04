@@ -27,16 +27,20 @@ class CNNTrainer(ModelTrainer):
                 else int(len(array_of_vectors) / self.__nn.batch_size) + 1
             step = 0
             loss = 0
-            for j in tqdm(range(k)):
+            step2 = 0
+            progress_bar = tqdm(range(k))
+            for j in progress_bar:
+                progress_bar.set_description("loss: {}, batch: {}, epoch: {}".format(loss, step2, m))
                 array_x = complement_data(array_of_vectors[step:step + self.__nn.batch_size])
                 array_x = np.array(array_x)
                 array_y = complement_data(array_of_tags[step:step + self.__nn.batch_size])
                 loss, _ = self.__nn.sess.run([self.__nn.loss, self.__nn.train],
                                              {self.__nn.x: array_x,
                                               self.__nn.y: array_y,
-                                              self.__nn.seqlen: seqlen_list[step:step + self.__nn.batch_size]
+                                              self.__nn.seqlen: seqlen_list[step:step + self.__nn.batch_size],
+                                              self.__nn.keep_prob: 0.7
                                               })
                 step += self.__nn.batch_size
-            print("\nloss: %s  epoch: %s " % (loss, m))
+                step2 += 1
 
-        return CNNModel(self.__nn.sess, self.__nn.outputs, self.__nn.x, self.__nn.seqlen, self.__tags)
+        return CNNModel(self.__nn.sess, self.__nn.outputs, self.__nn.x, self.__nn.seqlen, self.__tags, self.__nn.saver)

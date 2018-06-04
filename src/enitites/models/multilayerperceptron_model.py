@@ -19,3 +19,8 @@ class MultilayerPerceptronModel(Model):
 
     def __repr__(self):
         return 'mlperc_model'
+
+    def save_model(self, path):
+        saver = tf.train.Saver()
+        save_path = saver.save(self.session, path)
+        print("Model saved to {}".format(save_path))

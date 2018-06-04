@@ -14,16 +14,19 @@ class CNN():
         self.x_new = tf.expand_dims(self.x, -1)
         self.y = tf.placeholder(tf.float32, [None, None, self.output_size], name='y')
         self.seqlen = tf.placeholder(tf.int32, [None])
+        self.keep_prob = tf.placeholder_with_default(1.0, [], "keep_prob")
 
         output_layer = self.__add_convolution_layer(self.x, self.input_size, self.hidden_size)
+        output_tensor = tf.nn.dropout(output_layer, self.keep_prob)
 
-        self.outputs = tf.layers.dense(output_layer, self.output_size, activation=tf.tanh,
+        self.outputs = tf.layers.dense(output_tensor, self.output_size, activation=tf.tanh,
                                        kernel_initializer=tf.contrib.layers.xavier_initializer())
 
         self.loss = self.__add_loss(self.outputs)
         self.train = self.__add_update_step(self.loss)
 
         self.init = tf.global_variables_initializer()
+        self.saver = tf.train.Saver()
         self.sess = tf.Session()
         self.sess.run(self.init)
 
@@ -36,12 +39,11 @@ class CNN():
             conv_1 = self.__apply_convolution(filter_size, input_tensor_expand, input_size, output_size)
             conv_2 = self.__apply_convolution(filter_size, input_tensor_expand, input_size, output_size)
             result = conv_1 * tf.sigmoid(conv_2)
-            #max_pool_outputs = tf.nn.max_pool(result, [1, filter_size, 1, 1], [1, 1, 1, 1], 'SAME')
+            result = tf.squeeze(result, [2])
             conv_outputs.append(result)
 
-        conv_first = tf.concat(conv_outputs, 3)
-        conv_first = tf.squeeze(conv_first, [2])
-        return conv_first
+        conv_output = tf.concat(conv_outputs, 2)
+        return conv_output
 
     def __apply_convolution(self, filter_size, input_tensor, input_size, output_size):
         filter = tf.Variable(tf.random_normal([filter_size, input_size, 1, output_size], stddev=0.1))

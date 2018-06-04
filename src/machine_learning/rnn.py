@@ -30,5 +30,6 @@ class RNN():
         self.train = tf.train.AdamOptimizer(learning_rate=0.01).minimize(self.cross_entropy)
 
         self.init = tf.global_variables_initializer()
+        self.saver = tf.train.Saver()
         self.sess = tf.Session()
         self.sess.run(self.init)

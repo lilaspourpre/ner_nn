@@ -26,7 +26,9 @@ class RNNTrainer(ModelTrainer):
                 else int(len(array_of_vectors) / self.__nn.batch_size) + 1
             step = 0
             loss = 0
-            for j in tqdm(range(k)):
+            progress_bar = tqdm(range(k))
+            for j in progress_bar:
+                progress_bar.set_description("loss: {}, batch: {}, epoch: {}".format(loss, step, m))
                 array_x = complement_data(array_of_vectors[step:step + self.__nn.batch_size])
                 array_y = complement_data(array_of_tags[step:step + self.__nn.batch_size])
                 loss, _ = self.__nn.sess.run([self.__nn.cross_entropy, self.__nn.train],
@@ -36,6 +38,4 @@ class RNNTrainer(ModelTrainer):
                                               })
                 step += self.__nn.batch_size
 
-            print("\nloss: %s epoch: %s " % (loss, m))
-
-        return RNNModel(self.__nn.sess, self.__nn.outputs, self.__nn.x, self.__nn.seqlen, self.__tags)
+        return RNNModel(self.__nn.sess, self.__nn.outputs, self.__nn.x, self.__nn.seqlen, self.__tags, self.__nn.saver)
