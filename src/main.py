@@ -125,8 +125,8 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
     elif 'cnn' in method:
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
-        cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=100, batch_size=8)
-        return CNNTrainer(epoch=100, nn=cnn, tags=tags), feature
+        cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=500, batch_size=8)
+        return CNNTrainer(epoch=10, nn=cnn, tags=tags), feature
     else:
         raise argparse.ArgumentTypeError(
             'Value has to be "majorclass" or "random" or "svm" or "ml_pc" or "lstm" or "bilstm" or "cnn"')
@@ -194,7 +194,7 @@ def train_and_compute_nes_from(model_trainer, feature, train_documents, test_doc
     model = trainer.train(model_trainer, feature, train_documents)
     print("Training finished", datetime.now())
     model.save_model("../models")
-    #ne_creator.compute_nes(test_documents, feature, model, output_path)
+    ne_creator.compute_nes(test_documents, feature, model, output_path)
 
 
 if __name__ == '__main__':

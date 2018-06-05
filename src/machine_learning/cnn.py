@@ -3,7 +3,7 @@ import tensorflow as tf
 
 
 class CNN():
-    def __init__(self, input_size, output_size, hidden_size, batch_size, filter_sizes=(3, 4, 5)):
+    def __init__(self, input_size, output_size, hidden_size, batch_size, filter_sizes=(3, 3)):
         self.input_size = input_size
         self.output_size = output_size
         self.hidden_size = hidden_size
