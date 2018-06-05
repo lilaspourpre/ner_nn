@@ -74,7 +74,7 @@ class CNN():
         gradients = tf.gradients(loss, params)
         clipped_gradients, self.gradients_norm = tf.clip_by_global_norm(gradients, 1)
 
-        optimizer = tf.contrib.opt.NadamOptimizer(learning_rate=0.001)
-        # optimizer = tf.train.AdamOptimizer(learning_rate)
+        #optimizer = tf.contrib.opt.AdamOptimizer(learning_rate=0.001)
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
         update_step = optimizer.apply_gradients(zip(clipped_gradients, params))
         return update_step
