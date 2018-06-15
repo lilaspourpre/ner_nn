@@ -3,7 +3,7 @@ import tensorflow as tf
 
 
 class CNN():
-    def __init__(self, input_size, output_size, hidden_size, batch_size, filter_sizes=(3, 3)):
+    def __init__(self, input_size, output_size, hidden_size, batch_size, filter_sizes=(3, 3), learning_rate=0.0001):
         self.input_size = input_size
         self.output_size = output_size
         self.hidden_size = hidden_size
@@ -15,6 +15,7 @@ class CNN():
         self.y = tf.placeholder(tf.float32, [None, None, self.output_size], name='y')
         self.seqlen = tf.placeholder(tf.int32, [None])
         self.keep_prob = tf.placeholder_with_default(1.0, [], "keep_prob")
+        self.learning_rate = tf.placeholder_with_default(learning_rate, [], 'learning_rate')
 
         output_layer = self.__add_convolution_layer(self.x, self.input_size, self.hidden_size)
         output_tensor = tf.nn.dropout(output_layer, self.keep_prob)
@@ -74,7 +75,6 @@ class CNN():
         gradients = tf.gradients(loss, params)
         clipped_gradients, self.gradients_norm = tf.clip_by_global_norm(gradients, 1)
 
-        #optimizer = tf.contrib.opt.AdamOptimizer(learning_rate=0.001)
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
         update_step = optimizer.apply_gradients(zip(clipped_gradients, params))
         return update_step

@@ -126,7 +126,7 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
         cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=500, batch_size=8)
-        return CNNTrainer(epoch=10, nn=cnn, tags=tags), feature
+        return CNNTrainer(epoch=100, nn=cnn, tags=tags), feature
     else:
         raise argparse.ArgumentTypeError(
             'Value has to be "majorclass" or "random" or "svm" or "ml_pc" or "lstm" or "bilstm" or "cnn"')
@@ -176,8 +176,8 @@ def __compute_affixes(feature, ngram_affixes, documents, start=None, end=None):
 # --------------------------------------------------------------------
 
 def get_model_for_embeddings(model_path):
-    model = FastText.load_fasttext_format(model_path)
-    return model
+    #model = FastText.load_fasttext_format(model_path)
+    return None
 
 
 # --------------------------------------------------------------------
