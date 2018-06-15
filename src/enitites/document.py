@@ -2,6 +2,7 @@
 from collections import Counter
 
 import pymorphy2
+import nltk
 from nltk.tokenize import sent_tokenize
 
 class Document:
@@ -72,7 +73,8 @@ class Document:
     # XXX actually, this info is within input file. No need to recompute it, especially with nltk
     def __compute_sentences(self):
         list_of_all_words = [t.get_text() for t in self.get_tokens()]
-        sent_tokenize_list = sent_tokenize(' '.join(list_of_all_words), language='russian')
+        tokenizer = nltk.data.load('../../data/russian.pickle')
+        sent_tokenize_list = tokenizer.tokenize(' '.join(list_of_all_words))
         return sent_tokenize_list
 
     def __compute_pos_sentences(self):
