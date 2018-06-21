@@ -6,6 +6,7 @@ import pymorphy2
 from gensim.models.fasttext import FastText
 from itertools import product
 import trainer
+import pickle
 import ne_creator
 from enitites.features.composite import FeatureComposite
 from enitites.features.part_of_speech import POSFeature
@@ -126,7 +127,7 @@ def choose_model(method, window, train_documents, test_documents, ngram_affixes,
         tags = compute_tags()
         feature = get_composite_feature(window, train_documents, ngram_affixes, embedding_model)
         cnn = CNN(input_size=int(feature.get_vector_size()), output_size=len(tags), hidden_size=500, batch_size=8)
-        return CNNTrainer(epoch=100, nn=cnn, tags=tags), feature
+        return CNNTrainer(epoch=10, nn=cnn, tags=tags), feature
     else:
         raise argparse.ArgumentTypeError(
             'Value has to be "majorclass" or "random" or "svm" or "ml_pc" or "lstm" or "bilstm" or "cnn"')
@@ -151,6 +152,7 @@ def get_composite_feature(window, train_documents, ngram_affixes, embedding_mode
         for offset in range(-window, window + 1):
             list_of_features.append(ContextFeature(feature, offset))
     composite = FeatureComposite(list_of_features)
+    print(composite.get_vector_size())
     return composite
 
 
@@ -171,6 +173,7 @@ def __compute_affixes(feature, ngram_affixes, documents, start=None, end=None):
         for token in document.get_counter_token_texts().keys():
             set_of_affixes.add(token[start:end])
     return feature(set_of_affixes, ngram_affixes)
+
 
 
 # --------------------------------------------------------------------

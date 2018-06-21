@@ -13,7 +13,7 @@ class CNN():
         self.x = tf.placeholder(tf.float32, [None, None, self.input_size], name='x')
         self.x_new = tf.expand_dims(self.x, -1)
         self.y = tf.placeholder(tf.float32, [None, None, self.output_size], name='y')
-        self.seqlen = tf.placeholder(tf.int32, [None])
+        self.seqlen = tf.placeholder(tf.int32, [None], name='seqlen')
         self.keep_prob = tf.placeholder_with_default(1.0, [], "keep_prob")
         self.learning_rate = tf.placeholder_with_default(learning_rate, [], 'learning_rate')
 
@@ -21,7 +21,7 @@ class CNN():
         output_tensor = tf.nn.dropout(output_layer, self.keep_prob)
 
         self.outputs = tf.layers.dense(output_tensor, self.output_size, activation=tf.tanh,
-                                       kernel_initializer=tf.contrib.layers.xavier_initializer())
+                                       kernel_initializer=tf.contrib.layers.xavier_initializer(), name='outputs')
 
         self.loss = self.__add_loss(self.outputs)
         self.train = self.__add_update_step(self.loss)

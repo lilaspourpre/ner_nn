@@ -10,7 +10,7 @@ class RNN():
         self.batch_size = batch_size
         self.x = tf.placeholder(tf.float32, [None, None, self.input_size], name='x')
         self.y = tf.placeholder(tf.float32, [None, None, self.output_size], name='y')
-        self.seqlen = tf.placeholder(tf.int32, [None])
+        self.seqlen = tf.placeholder(tf.int32, [None], name='seqlen')
         self.fw_cell = tf.contrib.rnn.BasicLSTMCell(hidden_size)
         if bilstm:
             self.bw_cell = tf.contrib.rnn.BasicLSTMCell(hidden_size)
@@ -21,7 +21,9 @@ class RNN():
         else:
             self.mid_outputs, state = tf.nn.dynamic_rnn(self.fw_cell, self.x, sequence_length=self.seqlen,
                                                     dtype=tf.float32)
-        self.outputs = tf.contrib.layers.fully_connected(self.mid_outputs, self.output_size, activation_fn=None)
+        self.outputs = tf.contrib.layers.fully_connected(self.mid_outputs, self.output_size, activation_fn=None,
+                                                         scope="fc")
+        print(self.outputs.name)
         #self.outputs = tf.contrib.layers.fully_connected(self.mid_outputs[-1], self.output_size, activation_fn=None)
 
         self.cross_entropy = tf.reduce_mean(

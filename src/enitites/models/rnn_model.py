@@ -43,10 +43,12 @@ class RNNModel(Model):
 
     def save_model(self, path):
         save_path = os.path.join(path, '{}_{}'.format(self.__repr__(), time.strftime('%Y.%m.%d-%H.%M.%S')))
-        model_saver = tf.saved_model.builder.SavedModelBuilder(save_path)
-        model_saver.add_meta_graph_and_variables(
-            self.session,
-            [tf.saved_model.tag_constants.SERVING])
-        model_saver.save()
+        model_saver = tf.train.Saver()
+        #model_saver = tf.saved_model.builder.SavedModelBuilder(save_path)
+        # model_saver.add_meta_graph_and_variables(
+        #     self.session,
+        #     [tf.saved_model.tag_constants.SERVING])
+        model_saver.save(self.session, save_path)
+        #model_saver.save(self.session, 'my_test_model')
         print("Model saved to {}".format(save_path))
 

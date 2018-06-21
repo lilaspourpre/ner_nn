@@ -22,7 +22,7 @@ class CNNTrainer(ModelTrainer):
         return self.run_nn(splitted_vectors, splitted_tags, seqlen_list)
 
     def run_nn(self, array_of_vectors, array_of_tags, seqlen_list):
-        l_rate = 0.0001
+        l_rate = 0.00001
         for m in range(self.__epoch):
             k = int(len(array_of_vectors) / self.__nn.batch_size) if len(array_of_vectors) % self.__nn.batch_size == 0 \
                 else int(len(array_of_vectors) / self.__nn.batch_size) + 1
@@ -30,10 +30,12 @@ class CNNTrainer(ModelTrainer):
             loss = 0
             step2 = 0
             gradients_norm = 1
-            if m%10==0 or gradients_norm<0.1:
+            if m % 5 == 0 and m != 0:
                 l_rate *= 0.1
             progress_bar = tqdm(range(k))
             for j in progress_bar:
+                if gradients_norm < 0.1:
+                    l_rate *= 0.1
                 progress_bar.set_description("loss: {}, batch: {}, epoch: {}, gradients_norm: {}, l_rate: {}".format(loss, step2, m, gradients_norm, l_rate))
                 array_x = complement_data(array_of_vectors[step:step + self.__nn.batch_size])
                 array_x = np.array(array_x)
